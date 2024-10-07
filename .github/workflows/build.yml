@@ -58,7 +58,7 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: 6.5
-        target: "destop"
+        target: "desktop"
         install-deps: true
         modules: "qtbase qtsvg"
 
