@@ -57,10 +57,10 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: 6.5
+        version: 6.7
         target: "desktop"
         install-deps: true
-        modules: "qtbase qtsvg"
+        modules: "qtbase"
 
 
     # - name: Install dependencies
