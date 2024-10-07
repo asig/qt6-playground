@@ -60,8 +60,6 @@ jobs:
         version: 6.5
         target: "desktop"
         install-deps: true
-        modules: "qtbase"
-
 
     # - name: Install dependencies
     #   # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
