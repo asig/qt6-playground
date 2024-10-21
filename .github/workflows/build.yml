@@ -126,7 +126,8 @@ jobs:
         run: ctest --build-config ${{env.BUILD_TYPE}}
 
       - name: Run Qtwindeploy
-        run:
+        run: |
+          dir ${{ steps.strings.outputs.build-output-dir }}
           windeployqt.exe --release --no-compiler-runtime ${{ steps.strings.outputs.build-output-dir }}/helloworld.exe
           
       - name: Build Installer
