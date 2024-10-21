@@ -128,7 +128,8 @@ jobs:
       - name: Run Qtwindeploy
         run: |
           dir ${{ steps.strings.outputs.build-output-dir }}
-          windeployqt.exe --release --no-compiler-runtime ${{ steps.strings.outputs.build-output-dir }}/helloworld.exe
+          dir ${{ steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}}
+          windeployqt.exe --release --no-compiler-runtime ${{ steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}}/helloworld.exe
           
       - name: Build Installer
         run:
