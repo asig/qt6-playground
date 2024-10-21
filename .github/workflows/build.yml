@@ -126,6 +126,8 @@ jobs:
         run: ctest --build-config ${{ matrix.build_type }}
 
       - name: Build Installer
+        run:
+          makensis
         
 
 
