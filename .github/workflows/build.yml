@@ -129,7 +129,7 @@ jobs:
         run: |
           dir ${{ steps.strings.outputs.build-output-dir }}
           dir ${{ steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}}
-          windeployqt.exe --release --no-compiler-runtime ${{ steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}}/helloworld.exe
+          windeployqt.exe --release ${{ steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}}/helloworld.exe
           
       - name: Build Installer
         run:
