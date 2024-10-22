@@ -139,7 +139,7 @@ jobs:
 
       - name: Build Installer
         run:
-          makensis /DVERSION=0.0.1 /DARCH=x86_64 /DBUILD_DIR=${{steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}} installer/win/installer.nsi
+          makensis /DVERSION=0.0.1 /DARCH=x86_64 /DSOURCE_DIR=${{ github.workspace }} /DBUILD_DIR=${{steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}} installer/win/installer.nsi
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
