@@ -137,10 +137,16 @@ jobs:
           dir ${{ steps.strings.outputs.build-output-dir }}
           dir ${{ steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}}
           windeployqt.exe --release ${{ steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}}/helloworld.exe
-          
-      - name: Build Installer
-        run:
-          makensis /DVERSION=0.0.1 /DARCH=x86 installer/win/installer.nsi
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: executable
+          path: ${{ steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}}/helloworld.exe
+
+      # - name: Build Installer
+      #   run:
+      #     makensis /DVERSION=0.0.1 /DARCH=x86 installer/win/installer.nsi
 
         
 
