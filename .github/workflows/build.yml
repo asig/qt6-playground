@@ -128,7 +128,7 @@ jobs:
       - name: Debugging
         shell: bash
         run: |
-          ls -lR /
+          ls -lR "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
           ls -lR ${{ steps.strings.outputs.build-output-dir }}
 
 
