@@ -12,6 +12,10 @@ Unicode True
   !error "VERSION must be defined!"
 !endif
 
+!ifndef SOURCE_DIR
+  !error "SOURCE_DIR must be defined!"
+!endif
+
 !ifndef BUILD_DIR
   !error "BUILD_DIR must be defined!"
 !endif
@@ -47,7 +51,7 @@ Unicode True
 !insertmacro MUI_PAGE_WELCOME
 ; License page
 !define MUI_LICENSEPAGE_RADIOBUTTONS
-!insertmacro MUI_PAGE_LICENSE "../../LICENSE"
+!insertmacro MUI_PAGE_LICENSE "${SOURCE_DIR}\LICENSE"
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
@@ -86,9 +90,9 @@ Section "Hauptgruppe" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "${BUILD_DIR}\${PRODUCT_EXE}"
-  File "${BUILD_DIR}\libgcc_s_seh-1.dll"
-  File "${BUILD_DIR}\libstdc++-6.dll"
-  File "${BUILD_DIR}\libwinpthread-1.dll"
+  #File "${BUILD_DIR}\libgcc_s_seh-1.dll"
+  #File "${BUILD_DIR}\libstdc++-6.dll"
+  #File "${BUILD_DIR}\libwinpthread-1.dll"
   File "${BUILD_DIR}\Qt6Core.dll"
   File "${BUILD_DIR}\Qt6Gui.dll"
   File "${BUILD_DIR}\Qt6Svg.dll"
