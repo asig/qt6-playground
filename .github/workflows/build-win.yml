@@ -41,8 +41,9 @@ jobs:
             install-deps: true
     
       - run: |
+            echo "${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin" >> "$GITHUB_PATH"
             echo "${{ env.QT_ROOT_DIR }}"
-            echo "${{  env.GITHUB_PATH }}"
+            echo "${{ env.PATH }}"
             dir ${{ env.QT_ROOT_DIR }}/../../Tools
             dir ${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin
 
