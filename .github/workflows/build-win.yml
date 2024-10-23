@@ -43,7 +43,7 @@ jobs:
       - run: |
             echo "${{ env.QT_ROOT_DIR }}"
             dir ${{ env.QT_ROOT_DIR }}/../../Tools
-            dir ${{ env.QT_ROOT_DIR }}/../../Tools/mingw_1310
+            dir ${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64
 
       - name: Install NSIS
         run: |
