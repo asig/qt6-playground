@@ -96,7 +96,7 @@ Section "Hauptgruppe" SEC01
   File "${BUILD_DIR}\Qt6Core.dll"
   File "${BUILD_DIR}\Qt6Gui.dll"
   File "${BUILD_DIR}\Qt6Svg.dll"
-  File "${BUILD_DIR}\Qt6SvgWidgets.dll"
+  #File "${BUILD_DIR}\Qt6SvgWidgets.dll"
   File "${BUILD_DIR}\Qt6Widgets.dll"
 
   SetOutPath "$INSTDIR\platforms"
