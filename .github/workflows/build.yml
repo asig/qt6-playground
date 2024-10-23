@@ -33,10 +33,13 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: 6.7
-          arch: win64_mingw
-          target: "desktop"
-          install-deps: true
+            aqtversion: '==3.1.*'
+            host: 'windows'
+            target: 'desktop'
+            toolsOnly: 'true'
+            tools: 'tools_mingw1310'   
+            version: 6.7
+            arch: win64_mingw
   
       # - name: Install dependencies
       #   # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
