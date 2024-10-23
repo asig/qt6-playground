@@ -41,11 +41,9 @@ jobs:
             install-deps: true
     
       - run: |
-            echo "%%QT_ROOT_DIR%%"
-            echo "$env:QT_ROOT_DIR"
             echo "${{ env.QT_ROOT_DIR }}"
-            echo "Will I see this?"
-            dir "d:\a\"
+            dir ${{ env.QT_ROOT_DIR }}/../../Tools
+            dir ${{ env.QT_ROOT_DIR }}/../../Tools/mingw_1310
 
       - name: Install NSIS
         run: |
