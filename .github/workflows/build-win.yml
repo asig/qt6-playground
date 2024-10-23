@@ -41,8 +41,9 @@ jobs:
             install-deps: true
     
       - run: |
+            echo "$QT_ROOT_DIR"
+            echo "Will I see this?"
             dir "d:\a\"
-            echo $QT_ROOT_DIR
 
       - name: Install NSIS
         run: |
