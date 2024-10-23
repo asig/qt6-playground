@@ -42,8 +42,8 @@ jobs:
     
       - run: |
             echo "%%QT_ROOT_DIR%%"
-            echo "$QT_ROOT_DIR"
-            echo "${{env:QT_ROOT_DIR}}"
+            echo "$env:QT_ROOT_DIR"
+            echo "${{ env.QT_ROOT_DIR }}"
             echo "Will I see this?"
             dir "d:\a\"
 
