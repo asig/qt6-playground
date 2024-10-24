@@ -43,11 +43,11 @@ jobs:
       - shell: bash
         run: |
             gcc -v
-            echo "${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin" >> "$GITHUB_PATH"
-            echo "${{ env.QT_ROOT_DIR }}"
-            echo "${{ env.PATH }}"
-            dir ${{ env.QT_ROOT_DIR }}/../../Tools
-            dir ${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin
+            #echo "${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin" >> "$GITHUB_PATH"
+            #echo "${{ env.QT_ROOT_DIR }}"
+            #echo "${{ env.PATH }}"
+            #dir ${{ env.QT_ROOT_DIR }}/../../Tools
+            #dir ${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin
 
       - name: Install NSIS
         run: |
@@ -74,8 +74,8 @@ jobs:
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -DCMAKE_CXX_COMPILER=${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin/g++.exe
-          -DCMAKE_C_COMPILER=${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin/gcc.exe
+          -DCMAKE_CXX_COMPILER=g++.exe
+          -DCMAKE_C_COMPILER=gcc.exe
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
           -S ${{ github.workspace }}
   
