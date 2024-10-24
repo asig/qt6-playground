@@ -28,7 +28,10 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-  
+ 
+      - name: Install ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+ 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
@@ -37,7 +40,7 @@ jobs:
             host: 'windows'
             target: 'desktop'
             arch: 'win64_mingw'
-            tools: 'tools_mingw1310 tool_ninja'
+            tools: 'tools_mingw1310'
             install-deps: true
     
       - shell: bash
