@@ -22,18 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
   
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       - name: Set reusable strings
-        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
         id: strings
         shell: bash
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
  
-      - name: Install ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
- 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+      - uses: seanmiddleditch/gha-setup-ninja@master
+      - uses: jurplel/install-qt-action@v4
         with:
             aqtversion: '==3.1.*'
             version: '6.7.3'
@@ -43,39 +40,22 @@ jobs:
             tools: 'tools_mingw1310'
             install-deps: true
     
-      - shell: bash
-        run: |
-            gcc -v | head -1
-            #echo "${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin" >> "$GITHUB_PATH"
-            #echo "${{ env.QT_ROOT_DIR }}"
-            #echo "${{ env.PATH }}"
-            #dir ${{ env.QT_ROOT_DIR }}/../../Tools
-            #dir ${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin
-
-      - name: Install NSIS
-        run: |
+      - run: |
           iwr -useb get.scoop.sh -outfile 'install.ps1'
           .\install.ps1 -RunAsAdmin
           scoop update
           scoop bucket add extras
           scoop install nsis
 
-      - name: Print NSIS version and flags
-        run: |
+      - run: |
+          gcc -v | head -1
+          g++ -v | head -1
           makensis -VERSION
           makensis -HDRINFO
 
-          # - name: Install dependencies
-      #   # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-      #   id: deps
-      #   shell: bash
-      #   run: |
-      #     sudo apt-get install  qt6-base-dev qt6-svg nsis
-  
-      - name: Configure CMake
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: >
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      - run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_CXX_COMPILER=g++.exe
           -DCMAKE_C_COMPILER=gcc.exe
@@ -99,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: executable
-          path: ${{ steps.strings.outputs.build-output-dir }}/${{env.BUILD_TYPE}}/playground-0.0.1-x86_64-Setup.exe
+          path: ${{ steps.strings.outputs.build-output-dir }}/playground-0.0.1-x86_64-Setup.exe
           
 
 
