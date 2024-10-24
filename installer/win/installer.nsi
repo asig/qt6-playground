@@ -90,9 +90,9 @@ Section "Hauptgruppe" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "${BUILD_DIR}\${PRODUCT_EXE}"
-  #File "${BUILD_DIR}\libgcc_s_seh-1.dll"
-  #File "${BUILD_DIR}\libstdc++-6.dll"
-  #File "${BUILD_DIR}\libwinpthread-1.dll"
+  File "${BUILD_DIR}\libgcc_s_seh-1.dll"
+  File "${BUILD_DIR}\libstdc++-6.dll"
+  File "${BUILD_DIR}\libwinpthread-1.dll"
   File "${BUILD_DIR}\Qt6Core.dll"
   File "${BUILD_DIR}\Qt6Gui.dll"
   File "${BUILD_DIR}\Qt6Svg.dll"
@@ -101,6 +101,8 @@ Section "Hauptgruppe" SEC01
 
   SetOutPath "$INSTDIR\platforms"
   File "${BUILD_DIR}\platforms\qwindows.dll"
+
+  SetOutPath "$INSTDIR"
 
   CreateDirectory "$SMPROGRAMS\${PRODUCT_DIR}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_DIR}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PRODUCT_EXE}"
