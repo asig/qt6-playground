@@ -1,0 +1,56 @@
+# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: Build Windows binaries
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+ 
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build-win:
+    permissions:
+      contents: write
+
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+  
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+ 
+      # Install ninja
+      - uses: seanmiddleditch/gha-setup-ninja@master
+
+      # Install qt
+      - uses: jurplel/install-qt-action@v4
+        with:
+            aqtversion: '==3.1.*'
+            version: '6.7.3'
+            host: 'mac'
+            target: 'desktop'
+            arch: 'clang_64'
+            install-deps: true
+    
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      - run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+          -S ${{ github.workspace }}
+
+      # build binary
+      - run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{env.BUILD_TYPE}}
+
+      - run: ls -lR ${{ steps.strings.outputs.build-output-dir }}
+
