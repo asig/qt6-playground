@@ -3,10 +3,17 @@
 name: Build Windows binaries
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+
+        
+  # push:
+  #   branches: [ "master" ]
+  # pull_request:
+  #   branches: [ "master" ]
 
  
 env:

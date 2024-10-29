@@ -14,7 +14,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build-win:
+  build-mac:
     permissions:
       contents: write
 
