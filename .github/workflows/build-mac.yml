@@ -3,6 +3,12 @@
 name: Build Mac binaries
 
 on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
   push:
     branches: [ "master" ]
   pull_request:

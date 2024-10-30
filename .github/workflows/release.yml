@@ -1,0 +1,14 @@
+# Cut a release whenever a new tag is pushed to the repo.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    uses: build-win.yml
+    with:
+      version: TODO
+      prerelease: false
