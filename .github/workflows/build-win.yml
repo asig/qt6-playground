@@ -50,12 +50,12 @@ jobs:
             tools: 'tools_mingw1310'
             install-deps: true
     
-      - run: |
-          iwr -useb get.scoop.sh -outfile 'install.ps1'
-          .\install.ps1 -RunAsAdmin
-          scoop update
-          scoop bucket add extras
-          scoop install nsis
+      # - run: |
+      #     iwr -useb get.scoop.sh -outfile 'install.ps1'
+      #     .\install.ps1 -RunAsAdmin
+      #     scoop update
+      #     scoop bucket add extras
+      #     scoop install nsis
 
       - run: |
           gcc -v | head -1
