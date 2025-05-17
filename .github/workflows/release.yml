@@ -4,11 +4,89 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "v*"
+
+  
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
 
 jobs:
-  release:
-    uses: build-win.yml
+  build-win:
+    uses: ./.github/workflows/build-win.yml
     with:
-      version: TODO
-      prerelease: false
+      artifact-retention-days: 1
+
+  build-mac:
+    uses: ./.github/workflows/build-mac.yml
+    with:
+      artifact-retention-days: 1
+
+      
+  create-release:
+    name: Create Release
+    needs: [build-win, build-mac]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get tag name
+        id: get_tag
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Download Windows binary
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-binary
+          path: ./artifacts
+
+      - name: Download Mac binary
+        uses: actions/download-artifact@v3
+        with:
+          name: mac-binary
+          path: ./artifacts
+
+      # - name: Generate changelog
+      #   id: changelog
+      #   run: |
+      #     # Extract changes since previous tag (or use a simple placeholder)
+      #     echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+      #     echo "Release ${{ env.TAG_NAME }}" >> $GITHUB_ENV
+      #     echo "" >> $GITHUB_ENV
+      #     echo "## Changes" >> $GITHUB_ENV
+      #     git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s" | head -n 10 >> $GITHUB_ENV
+      #     echo "" >> $GITHUB_ENV
+      #     echo "EOF" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: Release ${{ env.TAG_NAME }}
+          # body: ${{ env.CHANGELOG }}
+          draft: false
+          prerelease: ${{ contains(env.TAG_NAME, '-alpha') || contains(env.TAG_NAME, '-beta') || contains(env.TAG_NAME, '-rc') }}
+
+      - name: Upload Mac Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/app-linux.tar.gz
+          asset_name: app-${{ env.TAG_NAME }}-mac.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/app-windows.zip
+          asset_name: app-${{ env.TAG_NAME }}-windows-amd64.zip
+          asset_content_type: application/zip

@@ -5,9 +5,11 @@ name: Build Mac binaries
 on:
   workflow_call:
     inputs:
-      version:
-        required: true
-        type: string
+      artifact-retention-days:
+        description: 'Number of days to retain artifacts'
+        default: 1
+        required: false
+        type: number
 
   push:
     branches: [ "master" ]
