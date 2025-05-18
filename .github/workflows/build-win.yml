@@ -107,7 +107,7 @@ jobs:
       - run: makensis /INPUTCHARSET UTF8  /NOCD /DVERSION=0.0.1 /DARCH=x86_64 /DINSTALLER_NAME=${{ env.INSTALLER_NAME }} /DSOURCE_DIR=${{ github.workspace }} /DBUILD_DIR=${{steps.strings.outputs.build-output-dir }} installer/win/installer.nsi
 
       - id: set-artifact-name
-        run: echo "artifact-name=${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
+        run: echo "artifact-name=MYASS-${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
