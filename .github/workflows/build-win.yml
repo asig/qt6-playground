@@ -41,8 +41,8 @@ jobs:
   build-win:
     runs-on: windows-latest
     steps:       
-      - run: |
-          echo "Running on Windows $(sw_vers -productVersion)"
+      - run: |          
+          echo "Running on Windows"
           echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
           echo "version: ${{ inputs.version }}"
           echo "Env-vars:"
