@@ -38,7 +38,21 @@ jobs:
       artifact-retention-days: 1
       version: ${{ needs.variables.outputs.version }}
 
-      
+
+  dump-stuff: 
+    needs: [build-win-release, build-mac-release]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Setting global variables
+        uses: actions/github-script@v6
+        id: var
+        with:
+          script: |
+            const mac = '${{ needs.build-mac-release.outputs }}';
+            console.log(mac);
+            const win = '${{ needs.build-win-release.outputs }}';
+            console.log(win);
+          
   create-release:
     name: Create Release
     needs: [build-win-release, build-mac-release]
@@ -56,14 +70,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: windows-binary
-          path: ./artifacts/win-binary.exe
+          path: ./artifacts/
           
       - name: Download Mac binary
         id: download-mac
         uses: actions/download-artifact@v4
         with:
           name: mac-binary
-          path: ./artifacts/mac-binary.dmg
+          path: ./artifacts/
 
       # - name: Generate changelog
       #   id: changelog

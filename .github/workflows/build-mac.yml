@@ -17,7 +17,9 @@ on:
     outputs:
       artifact-name:
         value: ${{ jobs.build-mac.outputs.artifact-name }}
-    
+      artifact-content-type:
+        value: ${{ jobs.build-mac.outputs.artifact-content-type }}
+      
   workflow_dispatch:
     inputs:
       artifact-retention-days:
