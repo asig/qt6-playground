@@ -24,14 +24,14 @@ jobs:
             const version = ref.substring(1);
             core.setOutput('version', version);
 
-  build-win:    
+  build-win-release:    
     uses: ./.github/workflows/build-win.yml
     needs: variables
     with:
       artifact-retention-days: 1
       version: ${{ needs.variables.outputs.version }}
 
-  build-mac:
+  build-mac-release:
     uses: ./.github/workflows/build-mac.yml
     needs: variables
     with:
@@ -41,7 +41,7 @@ jobs:
       
   create-release:
     name: Create Release
-    needs: [build-win, build-mac]
+    needs: [build-win-release, build-mac-release]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -91,7 +91,11 @@ jobs:
           draft: false
           prerelease: ${{ contains(env.TAG_NAME, '-alpha') || contains(env.TAG_NAME, '-beta') || contains(env.TAG_NAME, '-rc') }}
 
-      - run: ls -lR ./artifacts
+      - run: |
+          echo "Mac Artifact: ${{ needs.build-mac-release.outputs.artifact-name }}
+          echo "Win Artifact: ${{ needs.build-win-release.outputs.artifact-name }}
+          echo "Mac Artifact: ${{ needs.build-mac-release.outputs }}
+          echo "Win Artifact: ${{ needs.build-win-release.outputs }}
 
 
       - name: Upload Mac Release Asset
@@ -101,7 +105,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/*        
-          asset_name: ${{ needs.build-mac.outputs.artifact-name }}
+          asset_name: ${{ needs.build-mac-release.outputs.artifact-name }}
           # asset_content_type: application/gzip
 
       - name: Upload Windows Release Asset
@@ -111,5 +115,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/*
-          asset_name: ${{ needs.build-win.outputs.artifact-name }}
+          asset_name: ${{ needs.build-win-release.outputs.artifact-name }}
           # asset_content_type: application/zip

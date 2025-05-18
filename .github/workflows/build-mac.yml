@@ -14,7 +14,10 @@ on:
         description: 'Version to build'
         required: true
         type: string
-  
+    outputs:
+      artifact-name:
+        value: ${{ jobs.build-mac.outputs.artifact-name }}
+    
   workflow_dispatch:
     inputs:
       artifact-retention-days:
