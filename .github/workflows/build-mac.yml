@@ -42,6 +42,8 @@ env:
 jobs:
   build-mac:
     runs-on: macos-latest
+    outputs:
+      artifact-name: ${{ steps.set-artifact-name.outputs.artifact-name }}
     steps:
       - run: |
           echo "Running on macOS $(sw_vers -productVersion)"
@@ -163,8 +165,7 @@ jobs:
           # Verify DMG was created
           ls -la "${{ env.DMG_NAME }}"
 
-      - name: Set DMG name as output
-        id: set-artifact-name
+      - id: set-artifact-name
         run: echo "artifact-name=${{ env.DMG_NAME }}" >> "$GITHUB_OUTPUT"
 
       - name: Upload DMG artifact

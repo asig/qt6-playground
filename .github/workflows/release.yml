@@ -111,5 +111,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/*
-          asset_name: ${{ needs.build-win.env.INSTALLER_NAME }}
+          asset_name: ${{ needs.build-win.outputs.artifact-name }}
           # asset_content_type: application/zip

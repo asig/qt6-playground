@@ -40,6 +40,8 @@ env:
 jobs:
   build-win:
     runs-on: windows-latest
+    outputs:
+      artifact-name: ${{ steps.set-artifact-name.outputs.artifact-name }}
     env:
       APP_NAME: helloworld
       QT_VERSION: '6.8.3'
@@ -54,6 +56,9 @@ jobs:
           echo "version: ${{ inputs.version }}"
           echo "Env-vars:"
           env
+
+      - id: set-artifact-name
+        run: echo "artifact-name=${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v4
   
