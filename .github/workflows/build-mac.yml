@@ -33,7 +33,6 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-
   APP_NAME: helloworld
   QT_VERSION: '6.8.3'
   PRODUCT_NAME: "My Qt Application"
@@ -41,12 +40,13 @@ env:
   DMG_TITLE: "Install QtPlayground"
   DMG_NAME: "QtPlayground-${{ inputs.version }}.dmg"
   VERSION: ${{ inputs.version }}
+  BUILD_OUTPUT_DIR: ${{ github.workspace }}/build
 
 jobs:
   build-mac:
     runs-on: macos-latest
     outputs:
-      artifact-name: ${{ steps.set-artifact-name.outputs.artifact-name }}
+      artifact-name: ${{ steps.set-outputs.outputs.artifact-name }}
     steps:
       - run: |
           echo "Running on macOS $(sw_vers -productVersion)"
@@ -168,8 +168,11 @@ jobs:
           # Verify DMG was created
           ls -la "${{ env.DMG_NAME }}"
 
-      - id: set-artifact-name
-        run: echo "artifact-name=${{ env.DMG_NAME }}" >> "$GITHUB_OUTPUT"
+      - id: set-outputs
+        run: |
+          echo "artifact-name=${{ env.DMG_NAME }}" >> "$GITHUB_OUTPUT"
+          echo "artifact-content-type=BLAH" >> "$GITHUB_OUTPUT"
+
 
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4

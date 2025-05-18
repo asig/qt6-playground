@@ -45,7 +45,8 @@ jobs:
   build-win:
     runs-on: windows-latest
     outputs:
-      artifact-name: ${{ steps.set-artifact-name.outputs.artifact-name }}
+      artifact-name: ${{ steps.set-outputs.outputs.artifact-name }}
+      artifact-content-type: ${{ steps.set-outputs.outputs.artifact-content-type }}
     steps:           
       - run: |          
           echo "Running on Windows"
@@ -106,8 +107,10 @@ jobs:
       # Build installer
       - run: makensis /INPUTCHARSET UTF8  /NOCD /DVERSION=0.0.1 /DARCH=x86_64 /DINSTALLER_NAME=${{ env.INSTALLER_NAME }} /DSOURCE_DIR=${{ github.workspace }} /DBUILD_DIR=${{steps.strings.outputs.build-output-dir }} installer/win/installer.nsi
 
-      - id: set-artifact-name
-        run: echo "artifact-name=MYASS-${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
+      - id: set-outputs
+        run: |
+          echo "artifact-name=MYASS-${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
+          echo "artifact-content-type=BLAH" >> "$GITHUB_OUTPUT"
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
