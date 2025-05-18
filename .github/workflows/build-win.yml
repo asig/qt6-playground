@@ -30,28 +30,22 @@ on:
           required: true
           type: string
               
-  # push:
-  #   branches: [ "master" ]
-  # pull_request:
-  #   branches: [ "master" ]
-
  
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  APP_NAME: helloworld
+  QT_VERSION: '6.8.3'
+  PRODUCT_NAME: "My Qt Application"
+  INSTALLER_NAME: "QtPlayground-${{ inputs.version }}-x86_64.exe"
+  VERSION: ${{ inputs.version }}
+  BUILD_OUTPUT_DIR: ${{ github.workspace }}/build
 
 jobs:
   build-win:
     runs-on: windows-latest
     outputs:
       artifact-name: ${{ steps.set-artifact-name.outputs.artifact-name }}
-    env:
-      APP_NAME: helloworld
-      QT_VERSION: '6.8.3'
-      PRODUCT_NAME: "My Qt Application"
-      BUNDLE_ID: "com.example.myqtapp"
-      INSTALLER_NAME: "QtPlayground-${{ inputs.version }}-x86_64.exe"
-
     steps:           
       - run: |          
           echo "Running on Windows"
@@ -59,9 +53,6 @@ jobs:
           echo "version: ${{ inputs.version }}"
           echo "Env-vars:"
           env
-
-      - id: set-artifact-name
-        run: echo "artifact-name=${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v4
   
@@ -115,36 +106,13 @@ jobs:
       # Build installer
       - run: makensis /INPUTCHARSET UTF8  /NOCD /DVERSION=0.0.1 /DARCH=x86_64 /DINSTALLER_NAME=${{ env.INSTALLER_NAME }} /DSOURCE_DIR=${{ github.workspace }} /DBUILD_DIR=${{steps.strings.outputs.build-output-dir }} installer/win/installer.nsi
 
+      - id: set-artifact-name
+        run: echo "artifact-name=${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
+
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
           name: windows-binary
+          path: ${{ steps.strings.outputs.build-output-dir }}/${{ env.INSTALLER_NAME }}
           retention-days: ${{ github.event.inputs.artifact-retention-days }}
-          path: ${{ steps.strings.outputs.build-output-dir }}/
           
-
-
-  
-
-
-
-      #   - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ github.ref }}
-      #     release_name: Release ${{ github.ref }}
-      #     draft: false
-      #     prerelease: false
-      # - name: Upload Release Asset
-      #   id: upload-release-asset 
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-      #     asset_path: ./my-artifact.zip
-      #     asset_name: my-artifact.zip
-      #     asset_content_type: application/zip
