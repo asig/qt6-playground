@@ -103,7 +103,7 @@ jobs:
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer
+          name: windows-binary
           retention-days: ${{ github.event.inputs.artifact-retention-days }}
           path: ${{ steps.strings.outputs.build-output-dir }}/playground-0.0.1-x86_64-Setup.exe
           
