@@ -15,6 +15,8 @@ on:
         required: true
         type: string
     outputs:
+      win-testtest:
+        value: ${{ jobs.build-win.outputs.testtest }}
       win-artifact-name:
         value: ${{ jobs.build-win.outputs.artifact-name }}
       win-artifact-content-type:
@@ -47,6 +49,7 @@ jobs:
   build-win:
     runs-on: windows-latest
     outputs:
+      testtest: 'WOOHOO'
       artifact-name: ${{ steps.set-outputs.outputs.artifact-name }}
       artifact-content-type: ${{ steps.set-outputs.outputs.artifact-content-type }}
     steps:           
@@ -111,8 +114,8 @@ jobs:
 
       - id: set-outputs
         run: |
-          echo "win-artifact-name=${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
-          echo "win-artifact-content-type=application/octet-stream" >> "$GITHUB_OUTPUT"
+          echo "artifact-name=${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
+          echo "artifact-content-type=application/octet-stream" >> "$GITHUB_OUTPUT"
 
       - name: Upload binary
         uses: actions/upload-artifact@v4

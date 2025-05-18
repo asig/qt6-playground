@@ -37,23 +37,10 @@ jobs:
     with:
       artifact-retention-days: 1
       version: ${{ needs.variables.outputs.version }}
-
-  dump-stuff: 
-    needs: [build-win-release, build-mac-release]
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: dump stuff
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const mac = '${{ needs.build-mac-release.outputs.mac-artifact-name }}';
-            console.log(mac);
-            const win = '${{ needs.build-win-release.outputs.win-artifact-name }}';
-            console.log(win);
           
   create-release:
     name: Create Release
-    needs: [build-win-release, build-mac-release, dump-stuff]
+    needs: [build-win-release, build-mac-release]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -104,6 +91,7 @@ jobs:
           prerelease: ${{ contains(env.TAG_NAME, '-alpha') || contains(env.TAG_NAME, '-beta') || contains(env.TAG_NAME, '-rc') }}
 
       - run: |
+          echo "Win testtest: ${{ needs.build-win-release.outputs.testtest }}"
           echo "Mac Artifact: ${{ needs.build-mac-release.outputs.mac-artifact-name }}"
           echo "Win Artifact: ${{ needs.build-win-release.outputs.win-artifact-name }}"
 
