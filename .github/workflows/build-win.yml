@@ -110,7 +110,7 @@ jobs:
       - id: set-outputs
         run: |
           echo "artifact-name=MYASS-${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
-          echo "artifact-content-type=BLAH" >> "$GITHUB_OUTPUT"
+          echo "artifact-content-type=application/octet-stream" >> "$GITHUB_OUTPUT"
 
       - name: Upload binary
         uses: actions/upload-artifact@v4

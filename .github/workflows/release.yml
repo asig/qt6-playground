@@ -92,10 +92,10 @@ jobs:
           prerelease: ${{ contains(env.TAG_NAME, '-alpha') || contains(env.TAG_NAME, '-beta') || contains(env.TAG_NAME, '-rc') }}
 
       - run: |
-          echo "Mac Artifact: ${{ needs.build-mac-release.outputs.artifact-name }}
-          echo "Win Artifact: ${{ needs.build-win-release.outputs.artifact-name }}
-          echo "Mac Artifact: ${{ needs.build-mac-release.outputs }}
-          echo "Win Artifact: ${{ needs.build-win-release.outputs }}
+          echo "Mac Artifact: ${{ needs.build-mac-release.outputs.artifact-name }}"
+          echo "Win Artifact: ${{ needs.build-win-release.outputs.artifact-name }}"
+          echo "Mac Artifact: ${{ needs.build-mac-release.outputs }}"
+          echo "Win Artifact: ${{ needs.build-win-release.outputs }}"
 
 
       - name: Upload Mac Release Asset
@@ -106,7 +106,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/*        
           asset_name: ${{ needs.build-mac-release.outputs.artifact-name }}
-          # asset_content_type: application/gzip
+          asset_content_type: ${{ needs.build-mac-release.outputs.artifact-content-type }}
 
       - name: Upload Windows Release Asset
         uses: actions/upload-release-asset@v1
@@ -116,4 +116,5 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/*
           asset_name: ${{ needs.build-win-release.outputs.artifact-name }}
+          asset_content_type: ${{ needs.build-win-release.outputs.artifact-content-type }}
           # asset_content_type: application/zip

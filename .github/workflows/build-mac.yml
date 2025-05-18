@@ -47,6 +47,7 @@ jobs:
     runs-on: macos-latest
     outputs:
       artifact-name: ${{ steps.set-outputs.outputs.artifact-name }}
+      artifact-content-type: ${{ steps.set-outputs.outputs.artifact-content-type }}
     steps:
       - run: |
           echo "Running on macOS $(sw_vers -productVersion)"
@@ -171,7 +172,7 @@ jobs:
       - id: set-outputs
         run: |
           echo "artifact-name=${{ env.DMG_NAME }}" >> "$GITHUB_OUTPUT"
-          echo "artifact-content-type=BLAH" >> "$GITHUB_OUTPUT"
+          echo "artifact-content-type=application/x-dmg" >> "$GITHUB_OUTPUT"
 
 
       - name: Upload DMG artifact
