@@ -74,7 +74,9 @@ jobs:
           # body: ${{ env.CHANGELOG }}
           draft: false
           prerelease: ${{ contains(env.TAG_NAME, '-alpha') || contains(env.TAG_NAME, '-beta') || contains(env.TAG_NAME, '-rc') }}
-          permission: write
+
+      - run: ls -lR ./artifacts
+
 
       - name: Upload Mac Release Asset
         uses: actions/upload-release-asset@v1
