@@ -91,9 +91,9 @@ jobs:
           prerelease: ${{ contains(env.TAG_NAME, '-alpha') || contains(env.TAG_NAME, '-beta') || contains(env.TAG_NAME, '-rc') }}
 
       - run: |
-          echo "Win testtest: ${{ needs.build-win-release.outputs.win-testtest }}"
-          echo "Mac Artifact: ${{ needs.build-mac-release.outputs.mac-artifact-name }}"
-          echo "Win Artifact: ${{ needs.build-win-release.outputs.win-artifact-name }}"
+
+          echo "Mac Artifact: ${{ needs.build-mac-release.outputs.artifact-name }}"
+          echo "Win Artifact: ${{ needs.build-win-release.outputs.artifact-name }}"
 
 
       - name: Upload Mac Release Asset
@@ -102,9 +102,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/${{ needs.build-mac-release.outputs.mac-artifact-name }}
-          asset_name: ${{ needs.build-mac-release.outputs.mac-artifact-name }}
-          asset_content_type: ${{ needs.build-mac-release.outputs.mac-artifact-content-type }}
+          asset_path: ./artifacts/${{ needs.build-mac-release.outputs.artifact-name }}
+          asset_name: ${{ needs.build-mac-release.outputs.artifact-name }}
+          asset_content_type: ${{ needs.build-mac-release.outputs.artifact-content-type }}
 
       - name: Upload Windows Release Asset
         uses: actions/upload-release-asset@v1
@@ -112,6 +112,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/${{ needs.build-win-release.outputs.win-artifact-name }}
-          asset_name: ${{ needs.build-win-release.outputs.win-artifact-name }}
-          asset_content_type: ${{ needs.build-win-release.outputs.win-artifact-content-type }}
+          asset_path: ./artifacts/${{ needs.build-win-release.outputs.artifact-name }}
+          asset_name: ${{ needs.build-win-release.outputs.artifact-name }}
+          asset_content_type: ${{ needs.build-win-release.outputs.artifact-content-type }}
