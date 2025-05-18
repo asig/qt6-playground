@@ -119,6 +119,8 @@ jobs:
       #     </plist>
       #     EOF
 
+      - run: ls -lR /Users/runner/work/qt6-playground/Qt/6.7.3/
+      
       - name: Deploy Qt dependencies with macdeployqt
         run: |
           cd build
