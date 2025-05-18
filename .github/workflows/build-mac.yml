@@ -60,7 +60,7 @@ jobs:
  
       # Install other dependencies
       - run: |
-           brew install cmake create-dmg
+           brew install --formula cmake create-dmg
 
       # # Install ninja
       # - uses: seanmiddleditch/gha-setup-ninja@master
