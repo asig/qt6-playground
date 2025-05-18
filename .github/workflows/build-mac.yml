@@ -153,6 +153,7 @@ jobs:
           cd "${{ steps.strings.outputs.build-output-dir }}/"
           mkdir -p dmg_contents
           cp -R "${{ env.APP_NAME }}.app" dmg_contents/
+          ls -lR dmg_contents/
           # hdiutil create -volname "${{ env.DMG_TITLE }}" -srcfolder "${{ env.APP_NAME }}.app" -ov -format UDZO "${{ env.DMG_NAME }}"
         
           create-dmg \
