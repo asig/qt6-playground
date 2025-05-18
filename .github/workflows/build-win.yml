@@ -40,7 +40,14 @@ env:
 jobs:
   build-win:
     runs-on: windows-latest
-    steps:       
+    env:
+      APP_NAME: helloworld
+      QT_VERSION: '6.8.3'
+      PRODUCT_NAME: "My Qt Application"
+      BUNDLE_ID: "com.example.myqtapp"
+      INSTALLER_NAME: "QtPlayground-${{ inputs.version }}-x86_64.exe"
+
+    steps:           
       - run: |          
           echo "Running on Windows"
           echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
@@ -64,7 +71,7 @@ jobs:
       - uses: jurplel/install-qt-action@v4
         with:
             aqtversion: '==3.1.*'
-            version: '6.8.3'
+            version: ${{ env.QT_VERSION }}
             host: 'windows'
             target: 'desktop'
             arch: 'win64_mingw'
@@ -98,18 +105,21 @@ jobs:
       - run: copy ${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin/*.dll ${{steps.strings.outputs.build-output-dir }}/ 
       
       # Build installer
-      - run: makensis /INPUTCHARSET UTF8  /NOCD /DVERSION=0.0.1 /DARCH=x86_64 /DSOURCE_DIR=${{ github.workspace }} /DBUILD_DIR=${{steps.strings.outputs.build-output-dir }} installer/win/installer.nsi
+      - run: makensis /INPUTCHARSET UTF8  /NOCD /DVERSION=0.0.1 /DARCH=x86_64 /DINSTALLER_NAME=${{ env.INSTALLER_NAME }} /DSOURCE_DIR=${{ github.workspace }} /DBUILD_DIR=${{steps.strings.outputs.build-output-dir }} installer/win/installer.nsi
+
+      - id: set-artifact-name
+        run: echo "artifact-name=${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
           name: windows-binary
           retention-days: ${{ github.event.inputs.artifact-retention-days }}
-          path: ${{ steps.strings.outputs.build-output-dir }}/playground-${{ inputs.version }}-x86_64-Setup.exe
+          path: ${{ steps.strings.outputs.build-output-dir }}/
           
 
 
-
+  
 
 
 

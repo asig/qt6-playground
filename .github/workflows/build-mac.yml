@@ -163,6 +163,10 @@ jobs:
           # Verify DMG was created
           ls -la "${{ env.DMG_NAME }}"
 
+      - name: Set DMG name as output
+        id: set-artifact-name
+        run: echo "artifact-name=${{ env.DMG_NAME }}" >> "$GITHUB_OUTPUT"
+
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:

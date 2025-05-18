@@ -20,6 +20,9 @@ Unicode True
   !error "BUILD_DIR must be defined!"
 !endif
 
+!ifndef INSTALLER_NAME
+  !error "INSTALLER_NAME must be defined!"
+!endif
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_EXE "helloworld.exe"
@@ -70,7 +73,7 @@ Unicode True
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "${BUILD_DIR}\${PRODUCT_FILENAME}-${PRODUCT_VERSION}-${ARCH}-Setup.exe"
+OutFile "${BUILD_DIR}\${INSTALLER_NAME}"
 !if ${ARCH} == "x86"
   InstallDir "$PROGRAMFILES32\${PRODUCT_DIR}"
 !else if ${ARCH} == "x86_64"
