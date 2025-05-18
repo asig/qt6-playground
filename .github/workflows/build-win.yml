@@ -105,7 +105,7 @@ jobs:
         with:
           name: windows-binary
           retention-days: ${{ github.event.inputs.artifact-retention-days }}
-          path: ${{ steps.strings.outputs.build-output-dir }}/playground-0.0.1-x86_64-Setup.exe
+          path: ${{ steps.strings.outputs.build-output-dir }}/playground-${{ inputs.version }}-x86_64-Setup.exe
           
 
 

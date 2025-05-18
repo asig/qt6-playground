@@ -6,25 +6,37 @@ on:
     tags:
       - "v*"
   
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-
 permissions:
   contents: write
 
 jobs:
-  build-win:
+  variables: 
+    outputs:
+      version: ${{ steps.var.outputs.version}}
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Setting global variables
+        uses: actions/github-script@v6
+        id: var
+        with:
+          script: |
+            const ref = '${{ github.ref_name }}';
+            const version = ref.substring(1);
+            core.setOutput('version', version);
+
+  build-win:    
     uses: ./.github/workflows/build-win.yml
+    needs: variables
     with:
       artifact-retention-days: 1
-      version: ${{ github.ref_name }}
+      version: ${{ needs.variables.outputs.version }}
 
   build-mac:
     uses: ./.github/workflows/build-mac.yml
+    needs: variables
     with:
       artifact-retention-days: 1
-      version: ${{ github.ref_name }}
+      version: ${{ needs.variables.outputs.version }}
 
       
   create-release:
@@ -40,16 +52,18 @@ jobs:
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Download Windows binary
+        id: download-windows
         uses: actions/download-artifact@v4
         with:
           name: windows-binary
-          path: ./artifacts
-
+          path: ./artifacts/win-binary.exe
+          
       - name: Download Mac binary
+        id: download-mac
         uses: actions/download-artifact@v4
         with:
           name: mac-binary
-          path: ./artifacts
+          path: ./artifacts/mac-binary.dmg
 
       # - name: Generate changelog
       #   id: changelog
@@ -64,7 +78,7 @@ jobs:
       #     echo "EOF" >> $GITHUB_ENV
 
       - run: ls -lR ./artifacts
-      
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -86,9 +100,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/app-linux.tar.gz
-          asset_name: app-${{ env.TAG_NAME }}-mac.tar.gz
-          asset_content_type: application/gzip
+          asset_path: ./artifacts/*
+          # asset_name: app-${{ env.TAG_NAME }}-mac.tar.gz
+          # asset_content_type: application/gzip
 
       - name: Upload Windows Release Asset
         uses: actions/upload-release-asset@v1
@@ -96,6 +110,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/app-windows.zip
-          asset_name: app-${{ env.TAG_NAME }}-windows-amd64.zip
-          asset_content_type: application/zip
+          asset_path: ./artifacts/*
+          # asset_name: app-${{ env.TAG_NAME }}-windows-amd64.zip
+          # asset_content_type: application/zip
