@@ -55,7 +55,7 @@ jobs:
           
   create-release:
     name: Create Release
-    needs: [build-win-release, build-mac-release]
+    needs: [build-win-release, build-mac-release, dump-stuff]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -118,7 +118,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/*        
+          asset_path: ./artifacts/
           asset_name: ${{ needs.build-mac-release.outputs.artifact-name }}
           asset_content_type: ${{ needs.build-mac-release.outputs.artifact-content-type }}
 
@@ -128,7 +128,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/*
+          asset_path: ./artifacts/
           asset_name: ${{ needs.build-win-release.outputs.artifact-name }}
           asset_content_type: ${{ needs.build-win-release.outputs.artifact-content-type }}
           # asset_content_type: application/zip
