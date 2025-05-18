@@ -15,9 +15,9 @@ on:
         required: true
         type: string
     outputs:
-      artifact-name:
+      win-artifact-name:
         value: ${{ jobs.build-win.outputs.artifact-name }}
-      artifact-content-type:
+      win-artifact-content-type:
         value: ${{ jobs.build-win.outputs.artifact-content-type }}
         
   workflow_dispatch:
@@ -111,8 +111,8 @@ jobs:
 
       - id: set-outputs
         run: |
-          echo "artifact-name=MYASS-${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
-          echo "artifact-content-type=application/octet-stream" >> "$GITHUB_OUTPUT"
+          echo "win-artifact-name=${{ env.INSTALLER_NAME }}" >> "$GITHUB_OUTPUT"
+          echo "win-artifact-content-type=application/octet-stream" >> "$GITHUB_OUTPUT"
 
       - name: Upload binary
         uses: actions/upload-artifact@v4

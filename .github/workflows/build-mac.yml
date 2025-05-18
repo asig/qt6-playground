@@ -15,9 +15,9 @@ on:
         required: true
         type: string
     outputs:
-      artifact-name:
+      mac-artifact-name:
         value: ${{ jobs.build-mac.outputs.artifact-name }}
-      artifact-content-type:
+      mac-artifact-content-type:
         value: ${{ jobs.build-mac.outputs.artifact-content-type }}
       
   workflow_dispatch:
