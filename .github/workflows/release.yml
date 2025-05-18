@@ -64,19 +64,17 @@ jobs:
           name: mac-binary
           path: ./artifacts/
 
-      # - name: Generate changelog
-      #   id: changelog
-      #   run: |
-      #     # Extract changes since previous tag (or use a simple placeholder)
-      #     echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-      #     echo "Release ${{ env.TAG_NAME }}" >> $GITHUB_ENV
-      #     echo "" >> $GITHUB_ENV
-      #     echo "## Changes" >> $GITHUB_ENV
-      #     git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s" | head -n 10 >> $GITHUB_ENV
-      #     echo "" >> $GITHUB_ENV
-      #     echo "EOF" >> $GITHUB_ENV
-
-      - run: ls -lR ./artifacts
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Extract changes since previous tag (or use a simple placeholder)
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "Release ${{ env.TAG_NAME }}" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "## Changes" >> $GITHUB_ENV
+          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s" | head -n 10 >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create Release
         id: create_release
@@ -86,7 +84,7 @@ jobs:
         with:
           tag_name: ${{ env.TAG_NAME }}
           release_name: Release ${{ env.TAG_NAME }}
-          # body: ${{ env.CHANGELOG }}
+          body: ${{ env.CHANGELOG }}
           draft: false
           prerelease: ${{ contains(env.TAG_NAME, '-alpha') || contains(env.TAG_NAME, '-beta') || contains(env.TAG_NAME, '-rc') }}
 
@@ -98,6 +96,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/${{ needs.build-mac-release.outputs.artifact-name }}
+          asset_name: ${{ needs.build-mac-release.outputs.artifact-name }}
           asset_content_type: ${{ needs.build-mac-release.outputs.artifact-content-type }}
 
       - name: Upload Windows Release Asset
@@ -107,4 +106,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/${{ needs.build-win-release.outputs.artifact-name }}
+          asset_name: ${{ needs.build-win-release.outputs.artifact-name }}
           asset_content_type: ${{ needs.build-win-release.outputs.artifact-content-type }}
