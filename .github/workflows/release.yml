@@ -16,11 +16,13 @@ jobs:
     uses: ./.github/workflows/build-win.yml
     with:
       artifact-retention-days: 1
+      version: ${{ github.ref_name }}
 
   build-mac:
     uses: ./.github/workflows/build-mac.yml
     with:
       artifact-retention-days: 1
+      version: ${{ github.ref_name }}
 
       
   create-release:

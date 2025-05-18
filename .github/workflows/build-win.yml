@@ -10,8 +10,23 @@ on:
         default: 1
         required: false
         type: number
+      version:
+        description: 'Version to build'
+        required: true
+        type: string
 
-        
+  workflow_dispatch:
+      inputs:
+        artifact-retention-days:
+          description: 'Number of days to retain artifacts'
+          default: 1
+          required: false
+          type: number
+        version:
+          description: 'Version to build'
+          required: true
+          type: string
+              
   # push:
   #   branches: [ "master" ]
   # pull_request:
@@ -26,7 +41,12 @@ jobs:
   build-win:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - run: |
+          echo "Running on Windows $(sw_vers -productVersion)"
+          echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
+          echo "version: ${{ inputs.version }}"
+
+          - uses: actions/checkout@v4
   
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       - name: Set reusable strings

@@ -10,16 +10,45 @@ on:
         default: 1
         required: false
         type: number
- 
- 
+      version:
+        description: 'Version to build'
+        required: true
+        type: string
+  
+  workflow_dispatch:
+    inputs:
+      artifact-retention-days:
+        description: 'Number of days to retain artifacts'
+        default: 1
+        required: false
+        type: number
+      version:
+        description: 'Version to build'
+        required: true
+        type: string
+
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+
+  APP_NAME: QtPlayground
+  QT_VERSION: '6.5.0'
+  PRODUCT_NAME: "My Qt Application"
+  BUNDLE_ID: "com.example.myqtapp"
+  DMG_TITLE: "Install QtPlayground"
+  DMG_NAME: "QtPlayground-${{ inputs.version }}.dmg"
+  VERSION: ${{ inputs.version }}
 
 jobs:
   build-mac:
     runs-on: macos-latest
     steps:
+      - run: |
+          echo "Running on macOS $(sw_vers -productVersion)"
+          echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
+          echo "version: ${{ inputs.version }}"
+
+
       - uses: actions/checkout@v4
   
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -54,3 +83,80 @@ jobs:
 
       - run: ls -lR ${{ steps.strings.outputs.build-output-dir }}
 
+
+
+      - name: Create app bundle
+        run: |
+          cd build
+          # Create the basic structure (adjust according to your project's structure)
+          mkdir -p "${{ env.APP_NAME }}.app/Contents/"{MacOS,Resources,Frameworks}
+          cp "${{ env.APP_NAME }}" "${{ env.APP_NAME }}.app/Contents/MacOS/"
+          
+          # Create Info.plist
+          cat > "${{ env.APP_NAME }}.app/Contents/Info.plist" << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleExecutable</key>
+              <string>${{ env.APP_NAME }}</string>
+              <key>CFBundleIconFile</key>
+              <string>AppIcon</string>
+              <key>CFBundleIdentifier</key>
+              <string>${{ env.BUNDLE_ID }}</string>
+              <key>CFBundlePackageType</key>
+              <string>APPL</string>
+              <key>CFBundleName</key>
+              <string>${{ env.PRODUCT_NAME }}</string>
+              <key>CFBundleVersion</key>
+              <string>${{ env.VERSION }}</string>
+              <key>CFBundleShortVersionString</key>
+              <string>${{ env.VERSION }}</string>
+              <key>NSPrincipalClass</key>
+              <string>NSApplication</string>
+              <key>NSHighResolutionCapable</key>
+              <true/>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Deploy Qt dependencies with macdeployqt
+        run: |
+          cd build
+          $Qt6_DIR/bin/macdeployqt "${{ env.APP_NAME }}.app" -verbose=2
+
+      - name: Sign the application
+        run: |
+          # This is a placeholder - for actual code signing, you'll need certificates
+          # For development purposes, we'll skip actual signing
+          echo "Skipping code signing (for production, you would set up certificates)"
+          # Example of real signing command:
+          # codesign --deep --force --verify --verbose --sign "Developer ID Application: Your Name" "${{ env.APP_NAME }}.app"
+
+      - name: Create DMG
+        run: |
+          cd build
+          mkdir -p dmg_contents
+          cp -R "${{ env.APP_NAME }}.app" dmg_contents/
+          create-dmg \
+            --volname "${{ env.DMG_TITLE }}" \
+            --volicon "../resources/AppIcon.icns" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --icon "${{ env.APP_NAME }}.app" 200 190 \
+            --app-drop-link 600 185 \
+            --no-internet-enable \
+            "${{ env.DMG_NAME }}" \
+            "dmg_contents/" \
+            || true  # create-dmg returns 1 when it creates the DMG successfully
+          
+          # Verify DMG was created
+          ls -la "${{ env.DMG_NAME }}"
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-dmg
+          path: build/${{ env.DMG_NAME }}
+          retention-days: ${{ inputs.artifact-retention-days }}
