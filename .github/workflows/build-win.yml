@@ -40,13 +40,15 @@ env:
 jobs:
   build-win:
     runs-on: windows-latest
-    steps:
+    steps:       
       - run: |
           echo "Running on Windows $(sw_vers -productVersion)"
           echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
           echo "version: ${{ inputs.version }}"
+          echo "Env-vars:"
+          env
 
-          - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
   
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       - name: Set reusable strings
@@ -62,7 +64,7 @@ jobs:
       - uses: jurplel/install-qt-action@v4
         with:
             aqtversion: '==3.1.*'
-            version: '6.7.3'
+            version: '6.8.3'
             host: 'windows'
             target: 'desktop'
             arch: 'win64_mingw'
