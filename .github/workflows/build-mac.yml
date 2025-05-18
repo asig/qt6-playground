@@ -139,7 +139,9 @@ jobs:
       - name: Deploy Qt dependencies with macdeployqt
         run: |
           # cd build
-          $Qt6_DIR/bin/macdeployqt "${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app" -verbose=9
+          env
+          pwd
+          macdeployqt "${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app" -verbose=9
 
 
       - name: Sign the application
