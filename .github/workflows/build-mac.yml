@@ -10,12 +10,7 @@ on:
         default: 1
         required: false
         type: number
-
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
+ 
  
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -23,9 +18,6 @@ env:
 
 jobs:
   build-mac:
-    permissions:
-      contents: write
-
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4

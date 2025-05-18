@@ -24,9 +24,6 @@ env:
 
 jobs:
   build-win:
-    permissions:
-      contents: write
-
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,6 +80,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
+          retention-days: ${{ github.event.inputs.artifact-retention-days }}
           path: ${{ steps.strings.outputs.build-output-dir }}/playground-0.0.1-x86_64-Setup.exe
           
 
