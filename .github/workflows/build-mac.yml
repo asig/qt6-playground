@@ -146,11 +146,75 @@ jobs:
 
       - name: Sign the application
         run: |
-          # This is a placeholder - for actual code signing, you'll need certificates
-          # For development purposes, we'll skip actual signing
-          #echo "Skipping code signing (for production, you would set up certificates)"
-          # Example of real signing command:
-          codesign --deep --force --verify --verbose -s "${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app"
+          # Script to create a self-signed certificate and sign an app
+          # Configuration variables
+          CERTIFICATE_NAME="Self Signed Developer"
+          KEYCHAIN_NAME="build.keychain"
+          KEYCHAIN_PASSWORD="your-secure-password"
+          IDENTITY_NAME="Developer ID Application: Self Signed ($RANDOM)"
+
+          echo "Creating temporary keychain..."
+          # Create a temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+          security list-keychains -d user -s "$KEYCHAIN_NAME" $(security list-keychains -d user | tr -d '"')
+
+          echo "Creating self-signed certificate..."
+          # Create a self-signed certificate
+          # Note: This creates a certificate that won't be trusted by macOS Gatekeeper
+          # but is sufficient for development purposes
+          cat > /tmp/certsettings.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>Name</key>
+            <string>${CERTIFICATE_NAME}</string>
+            <key>KeyUsage</key>
+            <integer>2</integer>
+            <key>ExtendedKeyUsage</key>
+            <array>
+                <string>1.3.6.1.5.5.7.3.3</string>
+            </array>
+          </dict>
+          </plist>
+          EOF
+
+          security add-generic-password -a "$IDENTITY_NAME" -s "$IDENTITY_NAME" -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+          security find-generic-password -a "$IDENTITY_NAME" -s "$IDENTITY_NAME" -g "$KEYCHAIN_NAME" 2>&1 >/dev/null
+
+          echo "Configuring keychain for codesign..."
+          # Allow codesign to access the certificate without prompting
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+
+          echo "Checking for available identities..."
+          security find-identity -v "$KEYCHAIN_NAME"
+
+          echo "Signing application..."
+          # Create a simple entitlements file
+          cat > /tmp/entitlements.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>com.apple.security.app-sandbox</key>
+              <false/>
+              <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+              <true/>
+              <key>com.apple.security.cs.disable-library-validation</key>
+              <true/>
+          </dict>
+          </plist>
+          EOF
+
+          # Sign the application with the self-signed certificate
+          codesign --force --deep --options runtime \
+            --entitlements /tmp/entitlements.plist \
+            --timestamp \
+            --keychain "$KEYCHAIN_NAME" \
+            --sign "$IDENTITY_NAME" \
+            "${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app"
+
 
       - name: Create DMG
         run: |
