@@ -147,52 +147,72 @@ jobs:
       - name: Sign the application
         run: |
           # Script to create a self-signed certificate and sign an app
+
           # Configuration variables
-          CERTIFICATE_NAME="Self Signed Developer"
+          APP_PATH="${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app"
           KEYCHAIN_NAME="build.keychain"
           KEYCHAIN_PASSWORD="your-secure-password"
-          IDENTITY_NAME="Developer ID Application: Self Signed ($RANDOM)"
+          CERT_NAME="Self Signed Developer"
+          CERT_IDENTITY="Self Signed Developer"  # This will be the identity name for codesign
 
           echo "Creating temporary keychain..."
-          # Create a temporary keychain
+          # Create a temporary keychain and add it to the search list
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
           security list-keychains -d user -s "$KEYCHAIN_NAME" $(security list-keychains -d user | tr -d '"')
+          security default-keychain -s "$KEYCHAIN_NAME"  # Make it the default for this session
 
-          echo "Creating self-signed certificate..."
-          # Create a self-signed certificate
-          # Note: This creates a certificate that won't be trusted by macOS Gatekeeper
-          # but is sufficient for development purposes
-          cat > /tmp/certsettings.plist << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>Name</key>
-            <string>${CERTIFICATE_NAME}</string>
-            <key>KeyUsage</key>
-            <integer>2</integer>
-            <key>ExtendedKeyUsage</key>
-            <array>
-                <string>1.3.6.1.5.5.7.3.3</string>
-            </array>
-          </dict>
-          </plist>
+          echo "Creating self-signed certificate using openssl..."
+          # Create a private key
+          openssl genrsa -out private.key 2048
+
+          # Create a certificate signing request
+          cat > openssl.cnf << EOF
+          [req]
+          default_bits = 2048
+          prompt = no
+          default_md = sha256
+          distinguished_name = dn
+          [dn]
+          CN = $CERT_NAME
+          OU = Development
+          O = Your Organization
+          C = US
           EOF
 
-          security add-generic-password -a "$IDENTITY_NAME" -s "$IDENTITY_NAME" -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
-          security find-generic-password -a "$IDENTITY_NAME" -s "$IDENTITY_NAME" -g "$KEYCHAIN_NAME" 2>&1 >/dev/null
+          openssl req -new -key private.key -out request.csr -config openssl.cnf
+
+          # Create self-signed certificate
+          openssl x509 -req -days 365 -in request.csr -signkey private.key -out certificate.crt
+
+          # Create PKCS#12 file for import into keychain
+          openssl pkcs12 -export -out certificate.p12 -inkey private.key -in certificate.crt -passout pass:temp
+
+          echo "Importing certificate into keychain..."
+          # Import the certificate into the keychain
+          security import certificate.p12 -k "$KEYCHAIN_NAME" -P temp -T /usr/bin/codesign
 
           echo "Configuring keychain for codesign..."
-          # Allow codesign to access the certificate without prompting
+          # Set keychain to not lock and allow codesign to access without prompting
+          security set-keychain-settings -u "$KEYCHAIN_NAME"
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
 
-          echo "Checking for available identities..."
-          security find-identity -v "$KEYCHAIN_NAME"
+          echo "Available identities for signing:"
+          security find-identity -v -p codesigning "$KEYCHAIN_NAME"
 
-          echo "Signing application..."
+          # Get the actual identity hash to use with codesign
+          IDENTITY_HASH=$(security find-identity -v -p codesigning "$KEYCHAIN_NAME" | grep "$CERT_NAME" | awk '{print $2}')
+
+          if [ -z "$IDENTITY_HASH" ]; then
+            echo "Error: Could not find the signing identity hash. Certificate import may have failed."
+            exit 1
+          fi
+
+          echo "Using identity hash: $IDENTITY_HASH"
+
+          echo "Creating entitlements file..."
           # Create a simple entitlements file
-          cat > /tmp/entitlements.plist << EOF
+          cat > entitlements.plist << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -207,13 +227,24 @@ jobs:
           </plist>
           EOF
 
+          echo "Signing application..."
           # Sign the application with the self-signed certificate
           codesign --force --deep --options runtime \
-            --entitlements /tmp/entitlements.plist \
-            --timestamp \
+            --entitlements entitlements.plist \
             --keychain "$KEYCHAIN_NAME" \
-            --sign "$IDENTITY_NAME" \
-            "${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app"
+            --sign "$IDENTITY_HASH" \
+            "$APP_PATH"
+
+          echo "Verifying signature..."
+          codesign --verify --verbose=4 "$APP_PATH"
+          codesign -dvv "$APP_PATH"
+
+          echo "Cleaning up temporary files..."
+          rm -f private.key request.csr certificate.crt certificate.p12 openssl.cnf
+
+          echo "Done! Your application has been signed with a self-signed certificate."
+
+
 
 
       - name: Create DMG
