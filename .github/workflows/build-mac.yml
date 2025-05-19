@@ -142,15 +142,15 @@ jobs:
           env
           pwd
           macdeployqt "${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app" -verbose=9
-
+          # need to sign again, see https://github.com/orgs/Homebrew/discussions/3088
 
       - name: Sign the application
         run: |
           # This is a placeholder - for actual code signing, you'll need certificates
           # For development purposes, we'll skip actual signing
-          echo "Skipping code signing (for production, you would set up certificates)"
+          #echo "Skipping code signing (for production, you would set up certificates)"
           # Example of real signing command:
-          # codesign --deep --force --verify --verbose --sign "Developer ID Application: Your Name" "${{ env.APP_NAME }}.app"
+          codesign --deep --force --verify --verbose -s "${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app"
 
       - name: Create DMG
         run: |
