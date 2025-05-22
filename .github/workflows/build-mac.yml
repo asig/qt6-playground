@@ -142,29 +142,17 @@ jobs:
           env
           pwd
           macdeployqt "${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app" -verbose=9
+
           # need to sign again, see https://github.com/orgs/Homebrew/discussions/3088
 
       - name: Sign the application
         run: |
-          # Script to create a self-signed certificate and sign an app
-
           # Configuration variables
           APP_PATH="${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app"
           KEYCHAIN_NAME="build.keychain"
           KEYCHAIN_PASSWORD="your-secure-password"
           CERT_NAME="Self Signed Developer"
           CERT_IDENTITY="Self Signed Developer"  # This will be the identity name for codesign
-
-          echo "Creating temporary keychain..."
-          # Create a temporary keychain and add it to the search list
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
-          security list-keychains -d user -s "$KEYCHAIN_NAME" $(security list-keychains -d user | tr -d '"')
-          security default-keychain -s "$KEYCHAIN_NAME"  # Make it the default for this session
-
-          echo "Creating self-signed certificate using openssl..."
-          # Create a private key
-          openssl genrsa -out private.key 2048
 
           # Create a certificate signing request
           cat > openssl.cnf << EOF
@@ -174,77 +162,21 @@ jobs:
           default_md = sha256
           distinguished_name = dn
           [dn]
-          CN = $CERT_NAME
+          CN = $CERT_IDENTITY
           OU = Development
           O = Your Organization
           C = US
           EOF
+          openssl req -newkey rsa:2048 -nodes -keyout mykey.key -x509 -days 365 -out mycert.crt -config openssl.cnf
+          openssl pkcs12 -export -out certificate.p12 -inkey mykey.key -in mycert.crt
 
-          openssl req -new -key private.key -out request.csr -config openssl.cnf
+          security create-keychain -p secret build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p secret build.keychain
+          security import certificate.p12 -k build.keychain -P "$MAC_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k secret build.keychain
 
-          # Create self-signed certificate
-          openssl x509 -req -days 365 -in request.csr -signkey private.key -out certificate.crt
-
-          # Create PKCS#12 file for import into keychain
-          openssl pkcs12 -export -out certificate.p12 -inkey private.key -in certificate.crt -passout pass:temp
-
-          echo "Importing certificate into keychain..."
-          # Import the certificate into the keychain
-          security import certificate.p12 -k "$KEYCHAIN_NAME" -P temp -T /usr/bin/codesign
-
-          echo "Configuring keychain for codesign..."
-          # Set keychain to not lock and allow codesign to access without prompting
-          security set-keychain-settings -u "$KEYCHAIN_NAME"
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
-
-          echo "Available identities for signing:"
-          security find-identity -v -p codesigning "$KEYCHAIN_NAME"
-
-          # Get the actual identity hash to use with codesign
-          IDENTITY_HASH=$(security find-identity -v -p codesigning "$KEYCHAIN_NAME" | grep "$CERT_NAME" | awk '{print $2}')
-
-          if [ -z "$IDENTITY_HASH" ]; then
-            echo "Error: Could not find the signing identity hash. Certificate import may have failed."
-            exit 1
-          fi
-
-          echo "Using identity hash: $IDENTITY_HASH"
-
-          echo "Creating entitlements file..."
-          # Create a simple entitlements file
-          cat > entitlements.plist << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>com.apple.security.app-sandbox</key>
-              <false/>
-              <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
-              <true/>
-              <key>com.apple.security.cs.disable-library-validation</key>
-              <true/>
-          </dict>
-          </plist>
-          EOF
-
-          echo "Signing application..."
-          # Sign the application with the self-signed certificate
-          codesign --force --deep --options runtime \
-            --entitlements entitlements.plist \
-            --keychain "$KEYCHAIN_NAME" \
-            --sign "$IDENTITY_HASH" \
-            "$APP_PATH"
-
-          echo "Verifying signature..."
-          codesign --verify --verbose=4 "$APP_PATH"
-          codesign -dvv "$APP_PATH"
-
-          echo "Cleaning up temporary files..."
-          rm -f private.key request.csr certificate.crt certificate.p12 openssl.cnf
-
-          echo "Done! Your application has been signed with a self-signed certificate."
-
-
+          codesign --verbose --sign $CERT_IDENTITY $APP_PATH
 
 
       - name: Create DMG
