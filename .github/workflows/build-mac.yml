@@ -183,6 +183,10 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple: -s -k secret build.keychain
           echo "===== 006 ====="
 
+          # Create a self-signed code signing certificate directly in keychain
+          security add-certificates -k build.keychain /System/Library/Keychains/SystemRootCertificates.keychain
+
+
           echo "===== Available Identities ====="
           security find-identity -v -p codesigning build.keychain
 
