@@ -183,6 +183,10 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple: -s -k secret build.keychain
           echo "===== 006 ====="
 
+          echo "===== Available Identities ====="
+          security find-identity -v -p codesigning build.keychain
+
+          echo "===== 007 ====="
           codesign --verbose --sign $CERT_IDENTITY $APP_PATH
 
 
