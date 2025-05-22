@@ -153,6 +153,7 @@ jobs:
           KEYCHAIN_PASSWORD="your-secure-password"
           CERT_NAME="Self Signed Developer"
           CERT_IDENTITY="Self Signed Developer"  # This will be the identity name for codesign
+          MAC_CERT_PASSWORD="p4ssw0rd"  # Password for the PKCS12 file
 
           # Create a certificate signing request
           cat > openssl.cnf << EOF
@@ -168,7 +169,7 @@ jobs:
           C = US
           EOF
           openssl req -newkey rsa:2048 -nodes -keyout mykey.key -x509 -days 365 -out mycert.crt -config openssl.cnf
-          openssl pkcs12 -export -out certificate.p12 -inkey mykey.key -in mycert.crt
+          openssl pkcs12 -export -out certificate.p12 -inkey mykey.key -in mycert.crt -password pass:$MAC_CERT_PASSWORD
 
           security create-keychain -p secret build.keychain
           security default-keychain -s build.keychain
