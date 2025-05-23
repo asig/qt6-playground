@@ -153,7 +153,6 @@ jobs:
           KEYCHAIN_PASSWORD="your-secure-password"
           CERT_NAME="Self Signed Developer"
           CERT_IDENTITY="Self Signed Developer"  # This will be the identity name for codesign
-          MAC_CERT_PASSWORD="p4ssw0rd"  # Password for the PKCS12 file
 
           # Create a certificate signing request
           cat > openssl.cnf << EOF
@@ -174,7 +173,7 @@ jobs:
           EOF
 
           openssl req -newkey rsa:2048 -nodes -keyout mykey.key -x509 -days 365 -out mycert.crt -config openssl.cnf -extensions v3_req
-          openssl pkcs12 -export -out certificate.p12 -inkey mykey.key -in mycert.crt -password pass:$MAC_CERT_PASSWORD
+          openssl pkcs12 -export -out certificate.p12 -inkey mykey.key -in mycert.crt -passout pass:
 
           echo "===== 001 ====="
           security create-keychain -p secret build.keychain
@@ -183,7 +182,7 @@ jobs:
           echo "===== 003 ====="
           security unlock-keychain -p secret build.keychain
           echo "===== 004 ====="
-          security import certificate.p12 -k build.keychain -P "$MAC_CERT_PASSWORD" -T /usr/bin/codesign
+          security import certificate.p12 -k build.keychain  -T /usr/bin/codesign
           echo "===== 005 ====="
           security set-key-partition-list -S apple-tool:,apple: -s -k secret build.keychain
           echo "===== 006 ====="
