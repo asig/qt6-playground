@@ -182,7 +182,7 @@ jobs:
           echo "===== 003 ====="
           security unlock-keychain -p secret build.keychain
           echo "===== 004 ====="
-          security import certificate.p12 -k build.keychain  -T /usr/bin/codesign
+          security import certificate.p12 -k build.keychain -P "" -T /usr/bin/codesign
           echo "===== 005 ====="
           security set-key-partition-list -S apple-tool:,apple: -s -k secret build.keychain
           echo "===== 006 ====="
