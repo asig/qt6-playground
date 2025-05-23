@@ -192,7 +192,7 @@ jobs:
           security find-identity -v -p codesigning build.keychain
 
           echo "===== 007 ====="
-          codesign --verbose --sign $CERT_IDENTITY $APP_PATH
+          codesign --verbose --sign "$CERT_IDENTITY" $APP_PATH
 
 
       - name: Create DMG
