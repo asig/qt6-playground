@@ -98,7 +98,7 @@ jobs:
 
           # Extract changes from CHANGELOG.md
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV 
-          echo "Release ${{ env.TAG_NAME }}" >> $GITHUB_ENV
+          echo "# Release ${{ env.TAG_NAME }}" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
           echo "## Changes" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
