@@ -75,6 +75,7 @@ jobs:
           echo "Env-vars:"
           env
 
+          mkdir -p ${{ env.BUILD_DIR }}
           cd ${{ env.BUILD_DIR }}
 
           # Generate makefiles
