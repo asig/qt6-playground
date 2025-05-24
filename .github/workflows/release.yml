@@ -7,8 +7,7 @@ on:
       - "v*"
   
 
-permissions:
-  contents: write
+permissions: write-all
   
 jobs:
   variables: 
@@ -96,7 +95,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.TAG_NAME }}
           release_name: Release ${{ env.TAG_NAME }}
