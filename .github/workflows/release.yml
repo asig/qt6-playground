@@ -6,9 +6,6 @@ on:
     tags:
       - "v*"
   
-permissions:
-  contents: write
-
 jobs:
   variables: 
     outputs:
@@ -49,6 +46,7 @@ jobs:
     name: Create Release
     needs: [build-win-release, build-mac-release]
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
