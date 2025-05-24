@@ -57,15 +57,14 @@ jobs:
           echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
           echo "version: ${{ inputs.version }}"
 
-
       - uses: actions/checkout@v4
   
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-      - name: Set reusable strings
-        id: strings
+      - name: Set vars
+        id: vars
         shell: bash
         run: |
-          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+          echo "build-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
  
       # Install other dependencies
       - run: |
@@ -84,111 +83,16 @@ jobs:
             arch: 'clang_64'
             install-deps: true
     
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      - run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
-          -S ${{ github.workspace }}
-
-      # build binary
-      - run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{env.BUILD_TYPE}}
-
-      - run: |
-          ls -lR ${{ steps.strings.outputs.build-output-dir }}
-          echo "Qt6_DIR = $Qt6_DIR"
-
-
-      # - name: Create app bundle
-      #   run: |
-      #     cd build
-      #     # Create the basic structure (adjust according to your project's structure)
-      #     mkdir -p "${{ env.APP_NAME }}.app/Contents/"{MacOS,Resources,Frameworks}
-      #     cp "${{ env.APP_NAME }}" "${{ env.APP_NAME }}.app/Contents/MacOS/"
-          
-      #     # Create Info.plist
-      #     cat > "${{ env.APP_NAME }}.app/Contents/Info.plist" << EOF
-      #     <?xml version="1.0" encoding="UTF-8"?>
-      #     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      #     <plist version="1.0">
-      #     <dict>
-      #         <key>CFBundleExecutable</key>
-      #         <string>${{ env.APP_NAME }}</string>
-      #         <key>CFBundleIconFile</key>
-      #         <string>AppIcon</string>
-      #         <key>CFBundleIdentifier</key>
-      #         <string>${{ env.BUNDLE_ID }}</string>
-      #         <key>CFBundlePackageType</key>
-      #         <string>APPL</string>
-      #         <key>CFBundleName</key>
-      #         <string>${{ env.PRODUCT_NAME }}</string>
-      #         <key>CFBundleVersion</key>
-      #         <string>${{ env.VERSION }}</string>
-      #         <key>CFBundleShortVersionString</key>
-      #         <string>${{ env.VERSION }}</string>
-      #         <key>NSPrincipalClass</key>
-      #         <string>NSApplication</string>
-      #         <key>NSHighResolutionCapable</key>
-      #         <true/>
-      #     </dict>
-      #     </plist>
-      #     EOF
-
-
-      - name: Deploy Qt dependencies with macdeployqt and sign again
+      - name: Build binary and dmg
         run: |
-          # cd build
-          env
-          pwd
-          macdeployqt "${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app" -codesign=- -verbose=4 
+          cmake -B ${{ steps.vars.outputs.build-dir }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -S ${{ github.workspace }}
+          cd ${{ steps.vars.outputs.build-dir }}
+          cmake --build . --config ${{env.BUILD_TYPE}}
+          macdeployqt "${{ env.APP_NAME }}.app" -codesign=- -verbose=4 
 
-          # # need to sign again, see https://github.com/orgs/Homebrew/discussions/3088
-
-          # # Configuration variables
-          # APP_PATH="${{ steps.strings.outputs.build-output-dir }}/${{ env.APP_NAME }}.app"
-          # KEYCHAIN_NAME="build.keychain"
-          # KEYCHAIN_PASSWORD="your-secure-password"
-          # CERT_NAME="Self Signed Developer"
-          # CERT_IDENTITY="Self Signed Developer"  # This will be the identity name for codesign
-          # MAC_CERT_PASSWORD="p4ssw0rd"  # Password for the PKCS12 file
-
-          # # Create a certificate signing request
-          # cat > openssl.cnf << EOF
-          # [req]
-          # default_bits = 2048
-          # prompt = no
-          # default_md = sha256
-          # distinguished_name = dn
-          # [dn]
-          # CN = $CERT_IDENTITY
-          # OU = Development
-          # O = Your Organization
-          # C = US
-
-          # [v3_req]
-          # keyUsage = keyEncipherment, dataEncipherment, digitalSignature
-          # extendedKeyUsage = codeSigning
-          # EOF
-
-          # openssl req -newkey rsa:2048 -nodes -keyout mykey.key -x509 -days 365 -out mycert.crt -config openssl.cnf -extensions v3_req
-          # openssl pkcs12 -export -out certificate.p12 -inkey mykey.key -in mycert.crt -password pass:$MAC_CERT_PASSWORD
-
-          # security create-keychain -p secret build.keychain
-          # security default-keychain -s build.keychain
-          # security unlock-keychain -p secret build.keychain
-          # security import certificate.p12 -k build.keychain -P "$MAC_CERT_PASSWORD" -T /usr/bin/codesign
-          # security set-key-partition-list -S apple-tool:,apple: -s -k secret build.keychain
-
-          # codesign --verbose --sign "$CERT_IDENTITY" $APP_PATH
-
-      - name: Create DMG
-        run: |
-          cd "${{ steps.strings.outputs.build-output-dir }}/"
+          # Create DMG
           mkdir -p dmg_contents
           cp -R "${{ env.APP_NAME }}.app" dmg_contents/
-          ls -lR dmg_contents/
-          # hdiutil create -volname "${{ env.DMG_TITLE }}" -srcfolder "${{ env.APP_NAME }}.app" -ov -format UDZO "${{ env.DMG_NAME }}"
-        
           create-dmg \
             --volname "${{ env.DMG_TITLE }}" \
             --window-pos 200 120 \
@@ -202,19 +106,14 @@ jobs:
             || true  # create-dmg returns 1 when it creates the DMG successfully
             #         --volicon "../resources/AppIcon.icns" \
 
-
-          # Verify DMG was created
-          ls -la "${{ env.DMG_NAME }}"
-
       - id: set-outputs
         run: |
           echo "artifact-name=${{ env.DMG_NAME }}" >> "$GITHUB_OUTPUT"
           echo "artifact-content-type=application/x-dmg" >> "$GITHUB_OUTPUT"
 
-
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
           name: mac-binary
-          path: "${{ steps.strings.outputs.build-output-dir }}/${{ env.DMG_NAME }}"
+          path: "${{ steps.vars.outputs.build-dir }}/${{ env.DMG_NAME }}"
           retention-days: ${{ inputs.artifact-retention-days }}
