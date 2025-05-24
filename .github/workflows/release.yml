@@ -71,6 +71,13 @@ jobs:
           name: mac-binary
           path: ./artifacts/
 
+      - name: Download Linux binary
+        id: download-linux
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-binary
+          path: ./artifacts/
+
       - name: Generate changelog
         id: changelog
         run: |
@@ -115,3 +122,15 @@ jobs:
           asset_path: ./artifacts/${{ needs.build-win-release.outputs.artifact-name }}
           asset_name: ${{ needs.build-win-release.outputs.artifact-name }}
           asset_content_type: ${{ needs.build-win-release.outputs.artifact-content-type }}
+
+      - name: Upload Linux Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/${{ needs.build-linux-release.outputs.artifact-name }}
+          asset_name: ${{ needs.build-linux-release.outputs.artifact-name }}
+          asset_content_type: ${{ needs.build-linux-release.outputs.artifact-content-type }}
+  
+  
