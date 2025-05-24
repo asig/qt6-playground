@@ -37,9 +37,9 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   EXECUTABLE_NAME: helloworld
+  PRODUCT_NAME: "QtPlayground"
   APPIMAGE_NAME: "QtPlayground-${{ inputs.version }}-x86_64.AppImage"
   QT_VERSION: '6.8.3'
-  PRODUCT_NAME: "QtPlayground"
   VERSION: ${{ inputs.version }}
   BUILD_DIR: ${{ github.workspace }}/build
 
@@ -121,7 +121,7 @@ jobs:
           echo "========================================================="
           ls -ltr
 
-          
+
 
       - id: set-outputs
         run: |
