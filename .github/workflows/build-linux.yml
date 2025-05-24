@@ -76,11 +76,11 @@ jobs:
           env
 
           # Generate makefiles
-          cmake -B ${{ env.BUILD_DIR }}
-          -DCMAKE_CXX_COMPILER=g++
-          -DCMAKE_C_COMPILER=gcc
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-          -S ${{ github.workspace }}
+          cmake -B ${{ env.BUILD_DIR }} \
+          -DCMAKE_CXX_COMPILER=g++ \
+          -DCMAKE_C_COMPILER=gcc \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -S ${{ github.workspace }} \
 
           cd ${{ env.BUILD_DIR }}
 
