@@ -104,13 +104,13 @@ jobs:
           EOF
 
           # Copy Icon
-          cp resources/ui/icon-256x256.png AppDir/${{ env.EXECUTABLE_NAME }}.png
+          cp ../resources/ui/icon-256x256.png AppDir/${{ env.EXECUTABLE_NAME }}.png
 
           # Create AppImage
           wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          #wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage
-          chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
+          #chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
           ./linuxdeploy-x86_64.AppImage \
             --appdir AppDir \
             --plugin qt \
@@ -119,7 +119,7 @@ jobs:
             --output appimage
 
           echo "========================================================="
-          
+
           ls -ltr
 
 
