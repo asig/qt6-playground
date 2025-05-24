@@ -109,4 +109,9 @@ jobs:
           path: ${{ env.BUILD_DIR }}/${{ env.INSTALLER_NAME }}
           retention-days: ${{ github.event.inputs.artifact-retention-days }}
           if-no-files-found: error
+<<<<<<< HEAD
           overwrite: true
+=======
+          overwrite: true
+          
+>>>>>>> 92f12e4 (more stuff)
