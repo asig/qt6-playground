@@ -38,6 +38,13 @@ jobs:
       artifact-retention-days: 1
       version: ${{ needs.variables.outputs.version }}
           
+  build-linux-release:
+    uses: ./.github/workflows/build-linux.yml
+    needs: variables
+    with:
+      artifact-retention-days: 1
+      version: ${{ needs.variables.outputs.version }}
+
   create-release:
     name: Create Release
     needs: [build-win-release, build-mac-release]

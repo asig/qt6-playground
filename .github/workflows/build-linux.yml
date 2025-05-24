@@ -36,7 +36,12 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  EXECUTABLE_NAME: helloworld
   APPIMAGE_NAME: "QtPlayground-${{ inputs.version }}-x86_64.AppImage"
+  QT_VERSION: '6.8.3'
+  PRODUCT_NAME: "My Qt Application"
+  VERSION: ${{ inputs.version }}
+  BUILD_DIR: ${{ github.workspace }}/build
 
 jobs:
   build-linux:
@@ -47,13 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
   
-      - name: Set reusable strings
-        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-        id: strings
-        shell: bash
-        run: |
-          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-  
+ 
       # - name: Install Qt
       #   uses: jurplel/install-qt-action@v4
       #   with:
@@ -68,38 +67,42 @@ jobs:
         run: |
           sudo apt-get install  qt6-base-dev qt6-svg
   
-      - name: Configure CMake
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+      - name: Build
+        run: |
+          echo "Running on Linux"
+          echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
+          echo "version: ${{ inputs.version }}"
+          echo "Env-vars:"
+          env
+
+          # Generate makefiles
+          cmake -B ${{ env.BUILD_DIR }}
           -DCMAKE_CXX_COMPILER=g++
           -DCMAKE_C_COMPILER=gcc
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
           -S ${{ github.workspace }}
-  
-      - name: Build
-        # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{env.BUILD_TYPE}}
-  
-      - name: Test
-        working-directory: ${{ steps.strings.outputs.build-output-dir }}
-        # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        run: ctest --build-config ${{env.BUILD_TYPE}}
+
+          cd ${{ env.BUILD_DIR }}
+
+          # Build
+          cmake --build . --config ${{env.BUILD_TYPE}}
+
+          # Test
+          ctest --build-config ${{env.BUILD_TYPE}}
+
+          # Create AppImage
+          mkdir -p AppDir/usr/bin
+          cp ${{ env.EXECUTABLE_NAME }} AppDir/usr/bin/
+
+          wget -qO- https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage > appimagetool
+          chmod +x appimagetool
+
+          ./appimagetool AppDir ${{ env.APPIMAGE_NAME }}
 
       - id: set-outputs
         run: |
           echo "artifact-name=${{ env.APPIMAGE_NAME }}" >> "$GITHUB_OUTPUT"
           echo "artifact-content-type=application/octet-stream" >> "$GITHUB_OUTPUT"
-
-      - name: Create AppImage
-        run: |
-          mkdir -p ${{ steps.strings.outputs.build-output-dir }}/AppDir/usr/bin
-          cp ${{ steps.strings.outputs.build-output-dir }}/your_executable ${{ steps.strings.outputs.build-output-dir }}/AppDir/usr/bin/
-          wget -qO- https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage > appimagetool
-          chmod +x appimagetool
-          ./appimagetool ${{ steps.strings.outputs.build-output-dir }}/AppDir ${{ steps.strings.outputs.build-output-dir }}/${{ env.APPIMAGE_NAME }}
 
 
       - name: Upload binary
@@ -107,6 +110,6 @@ jobs:
         with:
           name: linux-binary
           retention-days: ${{ github.event.inputs.artifact-retention-days }}
-          path: ${{ steps.strings.outputs.build-output-dir }}/${{ env.APPIMAGE_NAME }}
+          path: ${{ env.BUILD_DIR }}/${{ env.APPIMAGE_NAME }}
 
 
