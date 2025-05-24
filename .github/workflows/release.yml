@@ -47,7 +47,7 @@ jobs:
 
   create-release:
     name: Create Release
-    needs: [build-win-release, build-mac-release]
+    needs: [build-win-release, build-mac-release, build-linux-release]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
