@@ -125,6 +125,10 @@ jobs:
           echo "artifact-name=${{ env.APPIMAGE_NAME }}" >> "$GITHUB_OUTPUT"
           echo "artifact-content-type=application/octet-stream" >> "$GITHUB_OUTPUT"
 
+      - run: |
+          echo "Build directory: ${{ env.BUILD_DIR }}"
+          echo "AppImage name: ${{ env.APPIMAGE_NAME }}"
+          ls -la ${{ env.BUILD_DIR }}
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
@@ -132,5 +136,7 @@ jobs:
           name: linux-binary
           retention-days: ${{ github.event.inputs.artifact-retention-days }}
           path: ${{ env.BUILD_DIR }}/${{ env.APPIMAGE_NAME }}
+          if-no-files-found: error
+          overwrite: true
 
 

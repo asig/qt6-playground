@@ -41,7 +41,7 @@ env:
   PRODUCT_NAME: "My Qt Application"
   INSTALLER_NAME: "QtPlayground-${{ inputs.version }}-x86_64.exe"
   VERSION: ${{ inputs.version }}
-  BUILD_OUTPUT_DIR: ${{ github.workspace }}/build
+  BUILD_DIR: ${{ github.workspace }}/build
 
 jobs:
   build-win:
@@ -58,14 +58,7 @@ jobs:
           env
 
       - uses: actions/checkout@v4
-  
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-      - name: Set reusable strings
-        id: strings
-        shell: bash
-        run: |
-          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
- 
+   
       # Install ninja
       - uses: seanmiddleditch/gha-setup-ninja@master
 
@@ -84,7 +77,7 @@ jobs:
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       - run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          cmake -B ${{ env.BUILD_DIR }}
           -DCMAKE_CXX_COMPILER=g++.exe
           -DCMAKE_C_COMPILER=gcc.exe
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
@@ -92,13 +85,13 @@ jobs:
           -S ${{ github.workspace }}
 
       # build binary
-      - run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{env.BUILD_TYPE}}
+      - run: cmake --build ${{ env.BUILD_DIR }} --config ${{env.BUILD_TYPE}}
       
       # Copy QT DLLs to the build dir
-      - run: windeployqt.exe --release ${{ steps.strings.outputs.build-output-dir }}/helloworld.exe
+      - run: windeployqt.exe --release ${{ env.BUILD_DIR }}/helloworld.exe
       
       # winqtdeploy seems to pick the wrong mingw runtime libs. Copy them manually
-      - run: copy ${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin/*.dll ${{steps.strings.outputs.build-output-dir }}/ 
+      - run: copy ${{ env.QT_ROOT_DIR }}/../../Tools/mingw1310_64/bin/*.dll ${{ env.BUILD_DIR }}/ 
       
       # Build installer
       - run: makensis /INPUTCHARSET UTF8  /NOCD /DVERSION=0.0.1 /DARCH=x86_64 /DINSTALLER_NAME=${{ env.INSTALLER_NAME }} /DSOURCE_DIR=${{ github.workspace }} /DBUILD_DIR=${{steps.strings.outputs.build-output-dir }} installer/win/installer.nsi
@@ -113,6 +106,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-binary
-          path: ${{ steps.strings.outputs.build-output-dir }}/${{ env.INSTALLER_NAME }}
+          path: ${{ env.BUILD_DIR }}/${{ env.INSTALLER_NAME }}
           retention-days: ${{ github.event.inputs.artifact-retention-days }}
-          
+          if-no-files-found: error
+          overwrite: true
