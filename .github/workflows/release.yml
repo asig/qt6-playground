@@ -46,8 +46,7 @@ jobs:
     name: Create Release
     needs: [build-win-release, build-mac-release, build-linux-release]
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
