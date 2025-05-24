@@ -75,29 +75,26 @@ jobs:
           echo "Env-vars:"
           env
 
-          # Generate makefiles
-          cmake -B ${{ env.BUILD_DIR }} \
-          -DCMAKE_CXX_COMPILER=g++ \
-          -DCMAKE_C_COMPILER=gcc \
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-          -S ${{ github.workspace }} \
-
           cd ${{ env.BUILD_DIR }}
 
+          # Generate makefiles
+          cmake -B . -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{ github.workspace }}
+
+
           # Build
-          cmake --build . --config ${{env.BUILD_TYPE}}
+          make -j$(nproc)
 
           # Test
           ctest --build-config ${{env.BUILD_TYPE}}
 
+          make install DESTDIR=../AppDir
+
           # Create AppImage
-          mkdir -p AppDir/usr/bin
-          cp ${{ env.EXECUTABLE_NAME }} AppDir/usr/bin/
+          cd ..
+          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+          ./linuxdeploy-x86_64.AppImage --appdir AppDir --output ${{ env.APPIMAGE_NAME }}
 
-          wget -qO- https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage > appimagetool
-          chmod +x appimagetool
-
-          ./appimagetool AppDir ${{ env.APPIMAGE_NAME }}
 
       - id: set-outputs
         run: |
