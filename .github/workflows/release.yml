@@ -5,10 +5,7 @@ on:
   push:
     tags:
       - "v*"
-  
-
-permissions: write-all
-  
+    
 jobs:
   variables: 
     outputs:
