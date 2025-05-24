@@ -80,7 +80,7 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          # Extract changes since previous tag (or use a simple placeholder) 
+          # Extract changes since previous tag (or use a simple placeholder)
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           echo "Release ${{ env.TAG_NAME }}" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
