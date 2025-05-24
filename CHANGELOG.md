@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is losely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## v1.0.76 - 2025-05-24
+## v1.0.78 - 2025-05-24
 
 ### Added
 

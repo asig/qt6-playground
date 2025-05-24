@@ -79,7 +79,7 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          # Extract changes from CHANGELOG.md
+          # Generate "filter" script to extract changes from CHANGELOG.md
           cat >filter.py <<EOF
           import sys
           file = sys.argv[1]
@@ -96,6 +96,7 @@ jobs:
                       print(line, end="")
           EOF
 
+          # Extract changes from CHANGELOG.md
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV 
           echo "Release ${{ env.TAG_NAME }}" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
