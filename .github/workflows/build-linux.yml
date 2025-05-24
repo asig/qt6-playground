@@ -91,7 +91,7 @@ jobs:
           # Prepare AppDir structure
           make install DESTDIR=../AppDir
           cd ..
-          mkdir AppDir/usr/{bin,lib,share/applications,share/icons}
+          mkdir -p AppDir/usr/{bin,lib,share/applications,share/icons}
 
           # Create desktop file
           cat > AppDir/${{ env.EXECUTABLE_NAME }}.desktop << EOF
