@@ -44,7 +44,7 @@ jobs:
 
   create-release:
     name: Create Release
-    needs: [build-win-release, build-mac-release, build-linux-release]
+    needs: [variables, build-win-release, build-mac-release, build-linux-release]
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
