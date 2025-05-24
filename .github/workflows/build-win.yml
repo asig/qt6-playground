@@ -115,4 +115,6 @@ jobs:
           name: windows-binary
           path: ${{ steps.strings.outputs.build-output-dir }}/${{ env.INSTALLER_NAME }}
           retention-days: ${{ github.event.inputs.artifact-retention-days }}
+          if-no-files-found: error
+          overwrite: true
           

@@ -134,7 +134,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-binary
-          retention-days: ${{ github.event.inputs.artifact-retention-days }}
           path: ${{ env.BUILD_DIR }}/${{ env.APPIMAGE_NAME }}
+          retention-days: ${{ github.event.inputs.artifact-retention-days }}
+          if-no-files-found: error
+          overwrite: true
 
 

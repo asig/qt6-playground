@@ -117,3 +117,5 @@ jobs:
           name: mac-binary
           path: "${{ steps.vars.outputs.build-dir }}/${{ env.DMG_NAME }}"
           retention-days: ${{ inputs.artifact-retention-days }}
+          if-no-files-found: error
+          overwrite: true
