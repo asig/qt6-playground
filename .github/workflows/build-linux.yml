@@ -81,7 +81,6 @@ jobs:
           # Generate makefiles
           cmake -B . -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{ github.workspace }}
 
-
           # Build
           make -j$(nproc)
 
@@ -128,6 +127,7 @@ jobs:
       - run: |
           echo "Build directory: ${{ env.BUILD_DIR }}"
           echo "AppImage name: ${{ env.APPIMAGE_NAME }}"
+          ls -la 
           ls -la ${{ env.BUILD_DIR }}
 
       - name: Upload binary
