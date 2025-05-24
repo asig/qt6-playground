@@ -89,7 +89,6 @@ jobs:
 
           # Prepare AppDir structure
           make install DESTDIR=AppDir
-
           mkdir -p AppDir/usr/{bin,lib,share/applications,share/icons}
 
           # Create desktop file
@@ -119,6 +118,7 @@ jobs:
             --output appimage
 
           echo "========================================================="
+          
           ls -ltr
 
 
