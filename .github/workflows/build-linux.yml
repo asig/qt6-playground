@@ -119,6 +119,9 @@ jobs:
             --icon-file AppDir/${{ env.EXECUTABLE_NAME }}.png \
             --output appimage
 
+          echo "========================================================="
+          ls -ltr
+
 
       - id: set-outputs
         run: |
