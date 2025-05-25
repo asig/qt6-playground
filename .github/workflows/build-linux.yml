@@ -87,12 +87,19 @@ jobs:
           # Test
           #ctest --build-config ${{env.BUILD_TYPE}}
 
-          # Prepare AppDir structure
-          make install DESTDIR=AppDir
-          mkdir -p AppDir/usr/{bin,lib,share/applications,share/icons}
+      - name: Create AppImage
+        working-directory: ${{ env.BUILD_DIR }}
+        run: |
+          # Download tools
 
-          # Create desktop file
-          cat > AppDir/${{ env.EXECUTABLE_NAME }}.desktop << EOF
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
+
+          # Prepare desktop file
+
+          cat > ${{ env.EXECUTABLE_NAME }}.desktop << EOF
           [Desktop Entry]
           Type=Application
           Name=${{ env.PRODUCT_NAME }}
@@ -102,25 +109,26 @@ jobs:
           Terminal=false
           EOF
 
-          # Copy Icon
-          cp ../resources/ui/icon-256x256.png AppDir/${{ env.EXECUTABLE_NAME }}.png
+          # Prepare Icon
+
+          cp ../resources/ui/icon-256x256.png ${{ env.EXECUTABLE_NAME }}.png
 
           # Create AppImage
-          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-          chmod +x linuxdeploy-x86_64.AppImage
-          chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
+
           ./linuxdeploy-x86_64.AppImage \
             --appdir AppDir \
-            --plugin qt \
-            --executable AppDir//usr/local/bin/${{ env.EXECUTABLE_NAME }} \
-            --icon-file AppDir/${{ env.EXECUTABLE_NAME }}.png \
+            --executable ${{ env.EXECUTABLE_NAME }} \
+            --icon-file ${{ env.EXECUTABLE_NAME }}.png \
+            --desktop-file ${{ env.EXECUTABLE_NAME }}.desktop \
             --output appimage
 
+
+          # For debugging: show what was created
+          
           echo "========================================================="
-
+          echo "Contents of $(pwd):"
           ls -ltr
-
+          echo "========================================================="
 
 
       - id: set-outputs
