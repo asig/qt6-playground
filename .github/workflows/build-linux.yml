@@ -51,8 +51,7 @@ jobs:
       artifact-content-type: ${{ steps.set-outputs.outputs.artifact-content-type }}
     steps:
       - uses: actions/checkout@v4
-  
- 
+   
       # - name: Install Qt
       #   uses: jurplel/install-qt-action@v4
       #   with:
