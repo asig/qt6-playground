@@ -92,7 +92,7 @@ jobs:
         run: |
 
           echo "=========================================================="
-          find / -type d -name platforms
+          find /usr -type d -name platforms
           echo "=========================================================="
 
           # Download tools
