@@ -73,7 +73,7 @@ jobs:
           echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
           echo "version: ${{ inputs.version }}"
           echo "Env-vars:"
-          env
+          env | sort
 
           mkdir -p ${{ env.BUILD_DIR }}
           cd ${{ env.BUILD_DIR }}
@@ -92,7 +92,7 @@ jobs:
         run: |
 
           echo "=========================================================="
-          find /usr -type d -name platforms
+          find ${{ env.QT_ROOT_DIR }} -type d -name platforms
           echo "=========================================================="
 
           # Download tools
