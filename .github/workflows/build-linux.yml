@@ -89,11 +89,11 @@ jobs:
         working-directory: ${{ env.BUILD_DIR }}
         run: |
 
-          echo "=========================================================="
-          find ${{ env.QT_ROOT_DIR }} -type d -name platforms
-          echo "=========================================================="
-          find ${{ env.QT_ROOT_DIR }}/plugins -type f 
-          echo "=========================================================="
+          # echo "=========================================================="
+          # find ${{ env.QT_ROOT_DIR }} -type d -name platforms
+          # echo "=========================================================="
+          # find ${{ env.QT_ROOT_DIR }}/plugins -type f 
+          # echo "=========================================================="
 
           # Download tools
 
