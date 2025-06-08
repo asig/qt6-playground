@@ -63,7 +63,6 @@ jobs:
           
       - name: Set DMG name
         run: |
-          echo "DMG_NAME=${{ env.DMG_BASE_NAME }}-$(uname -m).dmg"
           echo "DMG_NAME=${{ env.DMG_BASE_NAME }}-$(uname -m).dmg" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
@@ -110,7 +109,7 @@ jobs:
 
       - id: set-outputs
         run: |
-          echo "artifact-name=${{ env.DMG_NAME }} >> "$GITHUB_OUTPUT"
+          echo "artifact-name=${{ env.DMG_NAME }}" >> "$GITHUB_OUTPUT"
           echo "artifact-content-type=application/x-dmg" >> "$GITHUB_OUTPUT"
 
       - run: |
