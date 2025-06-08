@@ -41,7 +41,7 @@ env:
   PRODUCT_NAME: "My Qt Application"
   BUNDLE_ID: "com.example.myqtapp"
   DMG_TITLE: "Install QtPlayground"
-  DMG_NAME: "QtPlayground-${{ inputs.version }}.dmg"
+  DMG_BASE_NAME: "QtPlayground-${{ inputs.version }}"
   VERSION: ${{ inputs.version }}
   BUILD_DIR: ${{ github.workspace }}/build
 
@@ -50,12 +50,6 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-latest]
-        arch: [x86_64, arm64]
-        include:
-          - os: macos-13
-            arch: x86_64
-          - os: macos-latest
-            arch: arm64
       fail-fast: false
     runs-on: ${{ matrix.os }}
     outputs:
@@ -63,9 +57,13 @@ jobs:
       artifact-content-type: ${{ steps.set-outputs.outputs.artifact-content-type }}
     steps:
       - run: |
-          echo "Running on macOS $(sw_vers -productVersion) on ${{ matrix.os }}"
+          echo "Running on macOS $(sw_vers -productVersion)"
           echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
           echo "version: ${{ inputs.version }}"
+          
+      - name: Set DMG name
+        run: |
+          echo "DMG_NAME=${{ env.DMG_BASE_NAME }}-${{ inputs.version }}-$(uname -m).dmg" >> $GITHUB_ENV
           
       - uses: actions/checkout@v4
   
@@ -111,7 +109,7 @@ jobs:
 
       - id: set-outputs
         run: |
-          echo "artifact-name=${{ env.DMG_NAME }}-${{ matrix.arch }}" >> "$GITHUB_OUTPUT"
+          echo "artifact-name=${{ env.DMG_NAME }} >> "$GITHUB_OUTPUT"
           echo "artifact-content-type=application/x-dmg" >> "$GITHUB_OUTPUT"
 
       - run: |
