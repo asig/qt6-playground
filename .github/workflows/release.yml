@@ -143,7 +143,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/${{ needs.build-mac-arm64-release.outputs.artifact-name }}
           asset_name: ${{ needs.build-mac-arm64-release.outputs.artifact-name }}
-          asset_content_type: ${{ needs.build-mac-arg64-release.outputs.artifact-content-type }}
+          asset_content_type: ${{ needs.build-mac-arm64-release.outputs.artifact-content-type }}
 
       - name: Upload Mac x86_64 Release Asset
         uses: actions/upload-release-asset@v1
