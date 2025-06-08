@@ -63,8 +63,8 @@ jobs:
           
       - name: Set DMG name
         run: |
-          ARCH=$(uname -m)
-          echo "DMG_NAME=${{ env.DMG_BASE_NAME }}-${ARCH}.dmg" >> $GITHUB_ENV
+          echo "DMG_NAME=${{ env.DMG_BASE_NAME }}-$(uname -m).dmg"
+          echo "DMG_NAME=${{ env.DMG_BASE_NAME }}-$(uname -m).dmg" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
   
