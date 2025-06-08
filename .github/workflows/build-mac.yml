@@ -47,16 +47,26 @@ env:
 
 jobs:
   build-mac:
-    runs-on: macos-13
+    strategy:
+      matrix:
+        os: [macos-13, macos-latest]
+        arch: [x86_64, arm64]
+        include:
+          - os: macos-13
+            arch: x86_64
+          - os: macos-latest
+            arch: arm64
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
     outputs:
       artifact-name: ${{ steps.set-outputs.outputs.artifact-name }}
       artifact-content-type: ${{ steps.set-outputs.outputs.artifact-content-type }}
     steps:
       - run: |
-          echo "Running on macOS $(sw_vers -productVersion)"
+          echo "Running on macOS $(sw_vers -productVersion) on ${{ matrix.os }}"
           echo "artifact-retention-days: ${{ inputs.artifact-retention-days }}"
           echo "version: ${{ inputs.version }}"
-
+          
       - uses: actions/checkout@v4
   
       # Install other dependencies
@@ -101,7 +111,7 @@ jobs:
 
       - id: set-outputs
         run: |
-          echo "artifact-name=${{ env.DMG_NAME }}" >> "$GITHUB_OUTPUT"
+          echo "artifact-name=${{ env.DMG_NAME }}-${{ matrix.arch }}" >> "$GITHUB_OUTPUT"
           echo "artifact-content-type=application/x-dmg" >> "$GITHUB_OUTPUT"
 
       - run: |
